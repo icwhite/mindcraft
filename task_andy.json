@@ -18,7 +18,7 @@
         "item_collecting": false,
         "torch_placing": false,
         "idle_staring": true,
-        "cheat": false
+        "cheat": true
     },
 
     "conversation_examples": [

@@ -7,7 +7,7 @@ export default
     
     "profiles": [
         "./andy.json",
-        "./andy2.json",
+        // "./andy2.jso n",
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",

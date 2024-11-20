@@ -16,16 +16,49 @@ function parseArguments() {
             type: 'string',
             describe: 'Task ID to execute'
         })
+        .option('model', {
+            type: 'string',
+            describe: 'LLM Model to use'
+        })
         .help()
         .alias('help', 'h')
         .parse();
 }
 
-//todo: modify for multiple agents
+// function updateProfile(profile, model) {
+//     let fileContent = JSON.parse(readFileSync(profile, 'utf8'));
+//     fileContent.model = model;
+//     writeFileSync(profile, JSON.stringify(fileContent, null, 2)); 
+// }
+
 function getProfiles(args) {
+
+    // if (args.task) {
+    //     var task = loadTask(args.task);
+    // }
+
+    // if (args.model) {
+    //     if (! args.task) {
+    //         let profiles = args.profiles || settings.profiles;
+    //         for (let profile of profiles) {
+    //             updateProfile(profile, args.model);
+    //         }
+    //     }
+
+    //     if (args.task) {
+    //         if ('agent_number' in task && task.agent_number > 1) {
+    //             updateProfile('./multiagent_prompt_desc.json', args.model);
+    //             }
+    //          else {
+    //             updateProfile('./task_andy.json', args.model);
+    //         }
+    //     }
+    // }
+
     if (args.task) {
-        // todo: make temporary json profiles for the multiple agents
+        // make temporary json profiles for the multiple agents
         var task = loadTask(args.task);
+
         if ('agent_number' in task && task.agent_number > 1) {
             var profile = JSON.parse(readFileSync('./multiagent_prompt_desc.json', 'utf8'));
             var agent_names = task.agent_names;
@@ -33,7 +66,6 @@ function getProfiles(args) {
             for (let i=0; i<task.agent_number; i++) {
                 let temp_profile = profile;
                 temp_profile.name = agent_names[i];
-                //todo: contraints 
                 var filename = `profiles/task_${agent_names[i]}.json`;
                 writeFileSync(filename, JSON.stringify(temp_profile, null, 2));
                 filenames.push(filename);
@@ -43,7 +75,7 @@ function getProfiles(args) {
             return ['./task_andy.json'];
         }
     }
-    //todo: return two or more profiles if multi-agent
+
     return args.profiles || settings.profiles;
 }
 
