@@ -1,0 +1,132 @@
+[15:20:38] [ServerMain/WARN]: Failed sysctl call: hw.cpufrequency, Error code: 2
+[15:20:40] [ServerMain/INFO]: Environment: Environment[sessionHost=https://sessionserver.mojang.com, servicesHost=https://api.minecraftservices.com, name=PROD]
+[15:20:41] [ServerMain/INFO]: Loaded 7 recipes
+[15:20:41] [ServerMain/INFO]: Loaded 1271 advancements
+[15:20:42] [Server thread/INFO]: Starting minecraft server version 1.20.4
+[15:20:42] [Server thread/INFO]: Loading properties
+[15:20:42] [Server thread/INFO]: Default game type: SURVIVAL
+[15:20:42] [Server thread/INFO]: Generating keypair
+[15:20:42] [Server thread/INFO]: Starting Minecraft server on *:55916
+[15:20:42] [Server thread/INFO]: Using default channel type
+[15:20:42] [Server thread/WARN]: **** SERVER IS RUNNING IN OFFLINE/INSECURE MODE!
+[15:20:42] [Server thread/WARN]: The server will make no attempt to authenticate usernames. Beware.
+[15:20:42] [Server thread/WARN]: While this makes the game possible to play without internet access, it also opens up the ability for hackers to connect with any username they choose.
+[15:20:42] [Server thread/WARN]: To change this, set "online-mode" to "true" in the server.properties file.
+[15:20:42] [Server thread/INFO]: Preparing level "world"
+[15:20:43] [Server thread/INFO]: Preparing start region for dimension minecraft:overworld
+[15:20:44] [Worker-Main-8/INFO]: Preparing spawn area: 0%
+[15:20:44] [Worker-Main-2/INFO]: Preparing spawn area: 0%
+[15:20:44] [Worker-Main-1/INFO]: Preparing spawn area: 0%
+[15:20:44] [Worker-Main-3/INFO]: Preparing spawn area: 38%
+[15:20:44] [Server thread/INFO]: Time elapsed: 1642 ms
+[15:20:44] [Server thread/INFO]: Done (2.358s)! For help, type "help"
+[15:20:48] [Server thread/INFO]: izzycw[/127.0.0.1:53878] logged in with entity id 186 at (116.5, 72.0, 95.5)
+[15:20:48] [Server thread/INFO]: izzycw joined the game
+[15:21:03] [Server thread/INFO]: Made izzycw a server operator
+[15:21:52] [Server thread/INFO]: andy[/127.0.0.1:53953] logged in with entity id 354 at (116.5, 72.0, 97.5)
+[15:21:52] [Server thread/INFO]: andy joined the game
+[15:21:54] [Server thread/INFO]: [Not Secure] <andy> Hello world! I'm Andy! 
+[15:22:12] [Server thread/INFO]: andy lost connection: Disconnected
+[15:22:12] [Server thread/INFO]: andy left the game
+[15:22:16] [Server thread/INFO]: andy[/127.0.0.1:53985] logged in with entity id 411 at (116.5, 72.0, 97.5)
+[15:22:16] [Server thread/INFO]: andy joined the game
+[15:22:18] [Server thread/INFO]: [Not Secure] <andy> Hello world! I'm Andy! 
+[15:23:56] [Server thread/INFO]: Made andy a server operator
+[15:25:57] [Server thread/INFO]: andy lost connection: Disconnected
+[15:25:57] [Server thread/INFO]: andy left the game
+[15:26:00] [Server thread/INFO]: andy[/127.0.0.1:54106] logged in with entity id 854 at (116.5, 72.0, 97.5)
+[15:26:00] [Server thread/INFO]: andy joined the game
+[15:26:02] [Server thread/INFO]: [Not Secure] <andy> Hello world! I'm Andy! 
+[15:26:05] [Server thread/INFO]: andy lost connection: Disconnected
+[15:26:05] [Server thread/INFO]: andy left the game
+[15:30:07] [Server thread/INFO]: andy[/127.0.0.1:54195] logged in with entity id 1318 at (116.5, 72.0, 97.5)
+[15:30:07] [Server thread/INFO]: andy joined the game
+[15:30:08] [Server thread/INFO]: randy[/127.0.0.1:54225] logged in with entity id 1326 at (119.5, 70.0, 104.5)
+[15:30:08] [Server thread/INFO]: randy joined the game
+[15:30:08] [Server thread/INFO]: andy has made the advancement [Acquire Hardware]
+[15:30:08] [Server thread/INFO]: [andy: Gave 1 [Iron Ingot] to andy]
+[15:30:09] [Server thread/INFO]: [andy: Teleported andy to izzycw]
+[15:30:09] [Server thread/INFO]: [andy: Teleported andy to izzycw]
+[15:30:09] [Server thread/INFO]: [andy: Teleported andy to 120.500000, 77.000000, 99.500000]
+[15:30:10] [Server thread/INFO]: [Not Secure] <andy>  !startChat("randy", "Hey Randy, I need iron ingots to craft a shear. Do you have any iron ingots to share?", 10)
+[15:30:11] [Server thread/INFO]: [Not Secure] <randy>  !startChat("andy", "Hey Andy, let's build a shear together. Do you have any iron ingots or the tools necessary for crafting?", 10)
+[15:30:14] [Server thread/INFO]: [Not Secure] <andy> Yes, I have 1 iron ingot. How many do you have? We need a total of 2 ingots to craft a shear.
+[15:30:14] [Server thread/INFO]: [Not Secure] <randy> Hey Andy, I don't have any iron ingots right now. Let's work together to find some iron ore and smelt it. I'll start looking around for iron ore. !entities
+[15:30:17] [Server thread/INFO]: [Not Secure] <randy> I'll start searching for iron ore. Let's see if I can find any nearby. !nearbyBlocks
+[15:30:17] [Server thread/INFO]: [Not Secure] <randy> Currently, I have no iron ingots. Could you tell me where you got them so I can try to mine some more? Or maybe we can see if there's a way to find another one in the area.
+[15:30:19] [Server thread/INFO]: [Not Secure] <andy> I found my iron ingot nearby while mining, but I don't see any more around me right now. I'll help you search for iron ore too. Let's see what's around me. !nearbyBlocks
+[15:30:20] [Server thread/INFO]: [Not Secure] <randy> Great news, Andy! I found some iron ore nearby. I'll collect it and then we can smelt it into an iron ingot. !collectBlocks("iron_ore", 1)
+[15:30:22] [Server thread/INFO]: [Not Secure] <andy> I've found some iron ore nearby. I'll go ahead and collect it so we can smelt it into iron ingots. !collectBlocks("iron_ore", 1)
+[15:30:24] [Server thread/INFO]: [Not Secure] <randy> Andy, it looks like I don't have the right tools to mine the iron ore. Could you lend me a pickaxe, or do you have one we could use nearby?
+[15:30:25] [Server thread/INFO]: [Not Secure] <andy> I don't have the right tools to harvest iron ore. Randy, could you help me mine this iron ore if you have a pickaxe?
+[15:30:26] [Server thread/INFO]: [Not Secure] <randy> Unfortunately, I don't have a pickaxe either. Let's keep an eye out for a crafting table nearby or resources to make one. If we find wood, we can craft a wooden pickaxe to mine the iron ore. 
+[15:30:27] [Server thread/INFO]: [Not Secure] <andy> I don't have a pickaxe either. Let me check for craftable items and see if we can make one. !craftable
+[15:30:31] [Server thread/INFO]: [Not Secure] <andy> Currently, I can craft an iron nugget, but that's not helpful for our situation. Let's look for some nearby wood to make a crafting table and a wooden pickaxe. !nearbyBlocks
+[15:30:33] [Server thread/INFO]: [Not Secure] <andy> Let's look around for some wood to craft a wooden pickaxe. I'll gather some wood if there are any nearby. !nearbyBlocks
+[15:30:34] [Server thread/INFO]: [Not Secure] <andy> It looks like there's no wood nearby. Randy, let's explore a bit and see if we can find any trees or wooden structures. I'll head out and check around. !moveAway(10)
+[15:30:37] [Server thread/INFO]: [Not Secure] <andy> It seems there aren't any wood blocks nearby. Let's move to a different area to search for some wood. !moveAway(10)
+[15:30:39] [Server thread/INFO]: Made randy a server operator
+[15:30:41] [Server thread/INFO]: [Not Secure] <andy> I've moved a bit to explore the area. Let's see what's around me now. !nearbyBlocks
+[15:30:45] [Server thread/INFO]: [Not Secure] <andy> It seems we're back to our starting point, and still no wood in sight. Let's continue searching and cover more ground for any trees or wooden structures. !moveAway(15)
+[15:30:49] [Server thread/INFO]: [Not Secure] <andy> My brain disconnected, try again.
+[15:30:52] [Server thread/INFO]: [Not Secure] <andy> We're back to a familiar area. Let's continue searching for wood by moving in a different direction. !moveAway(20)
+[15:30:54] [Server thread/INFO]: andy lost connection: Disconnected
+[15:30:54] [Server thread/INFO]: andy left the game
+[15:30:54] [Server thread/INFO]: randy lost connection: Disconnected
+[15:30:54] [Server thread/INFO]: randy left the game
+[15:30:58] [Server thread/INFO]: andy[/127.0.0.1:54297] logged in with entity id 1444 at (95.14551968355141, 66.02442408821369, 110.80432445175741)
+[15:30:58] [Server thread/INFO]: andy joined the game
+[15:30:59] [Server thread/INFO]: [andy: Removed 1 item(s) from player andy]
+[15:31:00] [Server thread/INFO]: randy[/127.0.0.1:54327] logged in with entity id 1450 at (119.5, 70.0, 104.5)
+[15:31:00] [Server thread/INFO]: randy joined the game
+[15:31:00] [Server thread/INFO]: [andy: Gave 1 [Iron Ingot] to andy]
+[15:31:00] [Server thread/INFO]: [andy: Teleported andy to izzycw]
+[15:31:00] [Server thread/INFO]: [andy: Teleported andy to izzycw]
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:00] [Server thread/WARN]: andy moved too quickly! 25.590895414698565,8.0,-15.810772773541927
+[15:31:01] [Server thread/INFO]: [andy: Teleported andy to 122.500000, 77.000000, 98.500000]
+[15:31:01] [Server thread/INFO]: randy has made the advancement [Acquire Hardware]
+[15:31:01] [Server thread/INFO]: [randy: Gave 1 [Iron Ingot] to randy]
+[15:31:02] [Server thread/INFO]: [Not Secure] <andy>  !startChat('randy', 'Hey Randy, I have 1 iron ingot. Do you have any that we can use to make a shear?', 10)
+[15:31:02] [Server thread/INFO]: [randy: Teleported randy to izzycw]
+[15:31:02] [Server thread/INFO]: [randy: Teleported randy to izzycw]
+[15:31:02] [Server thread/WARN]: randy moved too quickly! 1.236415098249978,4.0,-9.506448321784518
+[15:31:02] [Server thread/INFO]: [randy: Teleported randy to 120.500000, 77.000000, 97.500000]
+[15:31:03] [Server thread/INFO]: [Not Secure] <randy>  !startChat('andy', 'Hey Andy, I have one iron ingot. We need one more to craft a shear. Do you have any iron ingots?', 10)
+[15:31:05] [Server thread/INFO]: [Not Secure] <andy> I have one iron ingot too. Let's craft a shear together. I'll hand mine over to you. !givePlayer('randy', 'iron_ingot', 1)
+[15:31:07] [Server thread/INFO]: [Not Secure] <randy> Picking up item!
+[15:31:08] [Server thread/INFO]: [Not Secure] <andy> I've given you my iron ingot. Let's craft that shear!
+[15:31:12] [Server thread/INFO]: [Not Secure] <randy> Great, Andy! I've got your iron ingot. Let me craft the shear.
+[15:31:12] [Server thread/INFO]: [Not Secure] <randy> !craftRecipe('shears', 1)
+[15:31:12] [Server thread/INFO]: [randy: Removed 1 item(s) from player randy]
+[15:31:12] [Server thread/INFO]: randy lost connection: Disconnected
+[15:31:12] [Server thread/INFO]: randy left the game
+[15:31:12] [Server thread/INFO]: [randy: Kicked andy: Kicked by an operator]
+[15:31:12] [Server thread/INFO]: andy lost connection: Kicked by an operator
+[15:31:12] [Server thread/INFO]: andy left the game

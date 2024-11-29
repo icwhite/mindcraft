@@ -37,6 +37,7 @@ function getProfiles(args) {
 
     if (args.task) {
         var task = loadTask(args.task);
+        console.log(`Task: ${task.goal}`);
     }
 
     if (args.model) {
