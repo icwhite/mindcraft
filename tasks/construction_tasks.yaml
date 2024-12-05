@@ -1,4 +1,5 @@
 construction_task_1:
+<<<<<<< HEAD
   type: construction
   goal: Build a marble monument with a large base and a slender monument body that is grand and impressive.
 
@@ -24,6 +25,26 @@ construction_task_6:
 
 construction_task_7:
   type: construction
+=======
+  goal: Build a marble monument with a large base and a slender monument body that is grand and impressive.
+
+construction_task_2:
+  goal: Build a slender brown pillar on a grassy field.
+
+construction_task_3:
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_4:
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_5:
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_6:
+  goal: Construct a traditional Chinese gatehouse.
+
+construction_task_7:
+>>>>>>> 188d343 (Initial task specification set up.)
   goal: Build a quirky-style small brown wooden house on a vast, endless grassland.
   initial_inventory:
     Spruce Planks: 64
@@ -31,7 +52,10 @@ construction_task_7:
     Spruce Slab: 64
 
 construction_task_8:
+<<<<<<< HEAD
   type: construction
+=======
+>>>>>>> 188d343 (Initial task specification set up.)
   goal: Construct a white villa far away on a vast, endless grassland.
   initial_inventory:
     Birch Planks: 256
@@ -42,6 +66,7 @@ construction_task_8:
     Birch Door: 16
 
 construction_task_9:
+<<<<<<< HEAD
   type: construction
   goal: Build a Minecraft-style wooden house directly facing you, with a door.
 
@@ -59,4 +84,18 @@ construction_task_12:
 
 construction_task_13:
   type: construction
+=======
+  goal: Build a Minecraft-style wooden house directly facing you, with a door.
+
+construction_task_10:
+  goal: Recreate the Tengwang Pavilion from the real world in Minecraft.
+
+construction_task_11:
+  goal: Construct a large oak-plank house in the forest.
+
+construction_task_12:
+  goal: Build a city gate from the Forbidden City.
+
+construction_task_13:
+>>>>>>> 188d343 (Initial task specification set up.)
   goal: Construct a colorful carpet.

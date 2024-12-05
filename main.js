@@ -2,9 +2,12 @@ import { AgentProcess } from './src/process/agent-process.js';
 import settings from './settings.js';
 import yargs from 'yargs';
 import { loadTask } from './src/utils/tasks.js';
+import yaml from 'js-yaml'
+import { readFileSync } from 'fs';
 import { hideBin } from 'yargs/helpers';
 import { readFileSync, writeFileSync } from 'fs';
 import { createMindServer } from './src/server/mind_server.js';
+
 
 function parseArguments() {
     return yargs(hideBin(process.argv))

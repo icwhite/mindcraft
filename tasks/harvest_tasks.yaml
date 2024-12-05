@@ -5,6 +5,7 @@
 #
 
 
+<<<<<<< HEAD
 harvest_8_spruce_log:
   goal: harvest 8 spruce log
   guidance: null
@@ -13,6 +14,8 @@ harvest_8_spruce_log:
   target: spruce_log
   type: harvest
 
+=======
+>>>>>>> 188d343 (Initial task specification set up.)
 harvest_1_oak_log:
   goal: harvest 1 oak log
   guidance: null
