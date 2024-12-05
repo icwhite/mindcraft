@@ -13,18 +13,6 @@ multiagent_techtree_1_shears_with_2_iron_ingot:
   number_of_target: 1
   type: techtree
   timeout : 60
-  # personalities:
-  #   Alice: Conscientiousness
-  #   Bob: Agreeableness
-  # script: there are some misunderstandings between Bob and Alice, Bob says Alice was wrong, but Alice says Bob was wrong, then Bob apologized for his wrong.
-  # system_instructions: []
-  # blocked_actions: 
-  #   andy:
-  #     - "!collectBlocks"
-  #     - "!collectAllBlocks"
-  #   randy:
-  #     - "!collectBlocks"
-  #     - "!collectAllBlocks"
 
 multiagent_techtree_1_stone_pickaxe:
   goal: Collaborate with other agents to build an stone pickaxe
@@ -42,7 +30,44 @@ multiagent_techtree_1_stone_pickaxe:
   type: techtree
   timeout : 300
 
-multiagent_build_wooden_pickaxe:
+multiagent_techtree_1_iron_pickaxe_raw_iron:
+  goal: Collaborate with other agents to build an iron pickaxe
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      raw_iron: 1
+      stone_pickaxe: 1
+    randy:
+      furnace: 1
+  target: iron_pickaxe
+  number_of_target: 1
+  type: techtree
+  timeout : 300
+  plan: "The agents need to smelt the raw iron to get iron ingot, then use the iron ingot to craft an iron pickaxe."
+
+multiagent_techtree_1_iron_pickaxe_raw_iron_coal_stone:
+  goal: Collaborate with other agents to build an iron pickaxe
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      raw_iron: 1
+      coal: 3
+      stone_pickaxe: 1
+    randy:
+      stone: 16
+  target: iron_pickaxe
+  number_of_target: 1
+  type: techtree
+  timeout : 300
+  plan: "The agents need to 1) build the furnace 2) smelt the raw iron to get iron ingot, then 3) use the iron ingot to craft an iron pickaxe."
+
+multiagent_techtree_wooden_pickaxe:
   goal: Collaborate with other agents to build a wooden pickaxe.
   agent_names:
   - andy
@@ -58,24 +83,170 @@ multiagent_build_wooden_pickaxe:
   type: techtree
   timeout : 120
 
-
-
-multiagent_techtree_boat:
-  goal: Collaborate with other agents to build a birch boat.
+multiagent_techtree_diamond_boots:
+  goal: Collaborate with other agents to build a diamond boots.
   agent_names:
-  - Bob
-  - Alice
+  - andy
+  - randy
   agent_number: 2
   initial_inventory:
-    Bob:
-      birch_planks: 3
-    Alice:
-      birch_planks: 2
-  target: birch_boat
+    andy:
+      diamond: 2
+    randy:
+      diamond: 2
+  target: diamond_boots
   number_of_target: 1
   type: techtree
-  timeout : 60
+  timeout : 120
 
+multiagent_techtree_arrow:
+  goal: Collaborate with other agents to build an arrow.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      flint: 1
+      wooden_axe: 1
+    randy:
+      feather: 1
+  target: arrow
+  number_of_target: 4
+  type: techtree
+  timeout : 120
 
+multiagent_techtree_shield:
+  goal: Collaborate with other agents to build a shield.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      iron_ingot: 1
+    randy:
+      oak_planks: 6
+  target: shield
+  number_of_target: 1
+  type: techtree
+  timeout : 120
+
+multiagent_build_iron_sword:
+  goal: Collaborate with other agents to build an iron sword.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      iron_ingot: 2
+    randy:
+      stick: 1
+  target: iron_sword
+  number_of_target: 1
+  type: techtree
+  timeout : 120
+
+multiagent_techtree_turtle_shell:
+  goal: Collaborate with other agents to build a turtle shell.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      scute: 3
+    randy:
+      scute: 2
+  target: turtle_shell
+  number_of_target: 1
+  type: techtree
+  timeout : 120
+
+multiagent_techtree_crossbow: 
+  goal: Collaborate with other agents to build a crossbow.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      iron_ingot: 1
+      string: 2
+    randy:
+      stick: 3
+      tripwire_hook: 1
+  target: crossbow
+  number_of_target: 1
+  type: techtree
+  timeout : 200
+
+multiagent_techtree_crossbow_no_sticks:
+  goal: Collaborate with other agents to build a crossbow without sticks.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      iron_ingot: 1
+      string: 2
+    randy:
+      tripwire_hook: 1
+  target: crossbow
+  number_of_target: 1
+  type: techtree
+  timeout : 200
+
+multiagent_techtree_crossbow_no_iron:
+  goal: Collaborate with other agents to build a crossbow without iron.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      string: 2
+      diamond_pickaxe: 1
+    randy:
+      stick: 3
+      tripwire_hook: 1
+  target: crossbow
+  number_of_target: 1
+  type: techtree
+  timeout : 200
+
+multiagent_techtree_shulker_box:
+  goal: Collaborate with other agents to build a shulker box.
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+      shulker_shell: 1
+      chest: 1
+    randy:
+      shulker_shell: 1
+  target: shulker_box
+  number_of_target: 1
+  type: techtree
+  timeout : 200
+
+multiagent_rescue_agent:
+  goal: Get all agents to safety
+  agent_names:
+  - andy
+  - randy
+  agent_number: 2
+  initial_inventory:
+    andy:
+    randy:
+      oak_planks: 64
+  target: rescue_agent
+  number_of_target: 1
+  type: rescue
+  timeout : 200
 
 
