@@ -13,19 +13,7 @@ import { handleTranslation, handleEnglishTranslation } from '../utils/translator
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
 import { serverProxy } from './server_proxy.js';
-<<<<<<< HEAD
-
-export class Agent {
-    async start(profile_fp, load_mem=false, init_message=null, count_id=0) {
-        this.last_sender = null;
-        try {
-            if (!profile_fp) {
-                throw new Error('No profile filepath provided');
-            }
-
-=======
-import { loadTask } from '../utils/tasks.js';
-import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
+import { loadTask, TechTreeHarvestValidator } from '../utils/tasks.js';
 import {getPosition} from './library/world.js'
 
 export class Agent {
@@ -37,7 +25,6 @@ export class Agent {
                 throw new Error('No profile filepath provided');
             }
 
->>>>>>> fb5310a (task specification, validation function, evaluation script, and initial inventories and teleportation)
             // Connect to MindServer via proxy
             serverProxy.connect();
             
@@ -75,11 +62,6 @@ export class Agent {
                 save_data = this.history.load();
             }
 
-<<<<<<< HEAD
-            this.bot.on('login', () => {
-                console.log(this.name, 'logged in!');
-                
-=======
             if (task) {
                 this.task = loadTask(task);
                 this.taskTimeout = this.task.timeout || 300;
@@ -111,7 +93,6 @@ export class Agent {
             this.bot.on('login', () => {
                 console.log(this.name, 'logged in!');
                 
->>>>>>> fb5310a (task specification, validation function, evaluation script, and initial inventories and teleportation)
                 // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
                 if (this.prompter.profile.skin)
                     this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
@@ -122,10 +103,7 @@ export class Agent {
             const spawnTimeout = setTimeout(() => {
                 process.exit(0);
             }, 30000);
-<<<<<<< HEAD
-=======
             
->>>>>>> fb5310a (task specification, validation function, evaluation script, and initial inventories and teleportation)
             this.bot.once('spawn', async () => {
                 try {
                     clearTimeout(spawnTimeout);
@@ -137,10 +115,6 @@ export class Agent {
                     console.log(`${this.name} spawned.`);
                     this.clearBotLogs();
                     
-<<<<<<< HEAD
-                    this._setupEventHandlers(save_data, init_message);
-                    this.startEvents();
-=======
                     if (this.task) {
                         this.bot.chat(`/clear ${this.name}`);
                         console.log(`Cleared ${this.name}'s inventory.`);
@@ -239,7 +213,6 @@ export class Agent {
                     await new Promise((resolve) => setTimeout(resolve, 10000));
                     this.checkAllPlayersPresent();
                     
->>>>>>> fb5310a (task specification, validation function, evaluation script, and initial inventories and teleportation)
                 } catch (error) {
                     console.error('Error in spawn event:', error);
                     process.exit(0);
@@ -351,12 +324,9 @@ export class Agent {
     }
 
     async handleMessage(source, message, max_responses=null) {
-<<<<<<< HEAD
-=======
         if (this.task && this.validator && this.validator.validate()) {
             this.killBots();
         }
->>>>>>> fb5310a (task specification, validation function, evaluation script, and initial inventories and teleportation)
         if (!source || !message) {
             console.warn('Received empty message from', source);
             return false;
@@ -512,11 +482,7 @@ export class Agent {
             this.bot.whisper(to_player, message);
     }
 
-<<<<<<< HEAD
-    startEvents() {
-=======
     async startEvents() {
->>>>>>> fb5310a (task specification, validation function, evaluation script, and initial inventories and teleportation)
         // Custom events
         // this.bot.on('spawn', () => {
             
@@ -652,9 +618,6 @@ export class Agent {
     cleanKill(msg='Killing agent process...', 
             code=1) {
         this.history.add('system', msg);
-<<<<<<< HEAD
-        this.bot.chat('Restarting.')
-=======
 
         if (code === 2 || code === 3 || code === 4) {
             this.bot.chat('Exiting the world permanently.');
@@ -662,7 +625,6 @@ export class Agent {
         else {
             this.bot.chat('Restarting.')
         }
->>>>>>> fb5310a (task specification, validation function, evaluation script, and initial inventories and teleportation)
         this.history.save();
         process.exit(code);
     }

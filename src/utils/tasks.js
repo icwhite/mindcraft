@@ -17,3 +17,36 @@ export function loadTask(taskId) {
         process.exit(1);
     }
 }
+
+export class TechTreeHarvestValidator {
+    constructor(task, bot) {
+        this.target = task.target;
+        this.number_of_target = task.number_of_target;
+        this.bot = bot;
+    }
+
+    validate() {
+        try{
+            console.log("validate");
+            let valid = false;
+            let total_targets = 0;
+            this.bot.inventory.slots.forEach((slot) => {
+                if (slot && slot.name.toLowerCase() === this.target) {
+                    total_targets += slot.count;
+                }
+                if (slot && slot.name.toLowerCase() === this.target && slot.count >= this.number_of_target) {
+                    valid = true;
+                    console.log('Task is complete');
+                }
+            });
+            if (total_targets >= this.number_of_target) {
+                valid = true;
+                console.log('Task is complete');
+            }
+            return valid;
+        } catch (error) {
+            console.error('Error validating task:', error);
+            return false;
+        }
+    }
+}
