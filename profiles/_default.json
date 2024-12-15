@@ -201,6 +201,18 @@
         [
             {"role": "system", "content": "You are self-prompting with the goal: 'Build a house'. Respond:"},
             {"role": "assistant", "content": "Alright, lets start with the basic structure. !newAction(\"Build an 8x8 base for the house.\")"}
+        ],
+        [
+            {"role": "user", "content": "terrance: (FROM OTHER BOT)Lets make a cake together!"},
+            {"role": "assistant", "content": "Sure, let me see what more items I need for making a cake. !extraItemsNeeded(\"cake\")"},
+            {"role": "system", "content": "EXTRA_ITEMS_NEEDED\n - [milk_bucket,3], \n - [sugar,2], \n - [wheat,3], \n - [egg,1]"},
+            {"role": "assistant", "content": "I need 3 milk buckets, 2 sugar, 3 wheat, and 1 egg to make a cake. Do you have any of these items?"}
+        ],
+        [
+            {"role": "user", "content": "terrance: (FROM OTHER BOT)Lets make a wooden pickaxe !!"},
+            {"role": "assistant", "content": "Sure, first let me check what all items I would need to make it. !!extraItemsNeeded(\"wooden_pickaxe\")"},
+            {"role": "system", "content": "EXTRA_ITEMS_NEEDED: none, You have all the items/ingredients required to craft this item"},
+            {"role": "assistant", "content": "I have all the items required to craft a wooden pickaxe. I'll start crafting it now. !!craftItem(\"wooden_pickaxe\", 1)"}
         ]
     ],
 

@@ -167,5 +167,73 @@ export const queryList = [
         perform: async function (agent) {
             return "Saved place names: " + agent.memory_bank.getKeys();
         }
+    },
+    {
+        name : '!extraItemsNeeded',
+        description: 'Get the exact items along with the amount required before building the target item',
+        params: {'targetItem': { type: 'string', description: 'The item that we are trying to craft'}},
+        perform: function(agent, targetItem) {
+            let bot = agent.bot;
+            let res = 'EXTRA_ITEMS_NEEDED';
+            let inventory = world.getInventoryCounts(bot);
+            let recipes = mc.getItemCraftingRecipes(targetItem);
+
+            let allItems = mc.getAllItems();
+            
+            // Handle case where target item does not exist
+            if (!allItems.find(i => i.name === targetItem)) {
+                return pad(`Item ${targetItem} does not exist in the game, please check if the item name is correct and is of the syntax which minecraft uses.`);
+            }
+
+            // Handle case where no recipes exist
+            if (!recipes || recipes.length === 0) {
+                return pad(`Item ${targetItem} cannot be crafted and doesn't have any recipe, it must be found organically.`);
+            }
+
+            let bestRecipe = null;
+            let minExtraItemsCount = Infinity;
+
+            for (let recipe of recipes) {
+                let missingIngredients = {};
+                let totalExtraItems = 0;
+
+                for (let [ingrident, requiredAmount] of Object.entries(recipe)) {
+
+                    let currentInventoryCount = inventory[ingrident] || 0;
+                    let additionalNeeded = Math.max(0, requiredAmount - currentInventoryCount);
+
+                    if (additionalNeeded > 0) {
+                        missingIngredients[ingrident] = additionalNeeded;
+                        totalExtraItems += additionalNeeded;
+                    }
+                }
+
+                if (totalExtraItems < minExtraItemsCount) {
+                    minExtraItemsCount = totalExtraItems;
+                    bestRecipe = { missingIngredients, totalExtraItems};
+                }
+            }
+
+            // Writing the result message
+
+            if (bestRecipe && bestRecipe.totalExtraItems > 0) {
+                for (let [item, amount] of Object.entries(bestRecipe.missingIngredients)) {
+                    res += `\n - [${item} , ${amount}], `;
+                }
+                res = res.slice(0, -2); // remove the last comma and space
+            } else if (bestRecipe && bestRecipe.totalExtraItems === 0) {
+                res += ': none, You have all the items/ingredients required to craft this item';
+            }
+
+            if (res === 'INVENTORY') {
+                res += ': Nothing';
+            }
+            else if (agent.bot.game.gameMode === 'creative') {
+                res += '\n(You have access to infinite quantity of any items in creative mode. You do not need to gather resources!!)';
+            }
+
+            console.log(pad(res));
+            return pad(res);
+        }
     }
 ];
