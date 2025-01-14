@@ -12,7 +12,6 @@ export class CraftTaskValidator {
         this.number_of_target = data.number_of_target;
         this.agent = agent;
     }
-
     validate() {
         try{
             let valid = false;
@@ -75,17 +74,6 @@ export function resetConstructionWorld(bot, blueprint) {
     bot.chat(command);
     console.log('World reset');
 }
-
-// export function resetConstructionWorld(bot) {
-//     console.log('Resetting world...');
-//     const pos = getPosition(bot);
-//     const xOffset = 25;
-//     const zOffset = 25;
-//     const command = `/fill ${Math.floor(pos.x - xOffset)} -60 ${Math.floor(pos.z - zOffset)} ${Math.floor(pos.x + xOffset)} -50 ${Math.floor(pos.z + zOffset)} air`;
-//     console.log('Command:', command);
-//     bot.chat(command);
-//     console.log('World reset');
-// }
 
 export function checkLevelBlueprint(agent, levelNum) {
     const blueprint = agent.task.blueprint;
@@ -419,15 +407,24 @@ export class Task {
             await executeCommand(this.agent, `!startConversation("${other_name}", "${this.conversation}")`);
         }
     }    
+
+    async generateBlueprint(messages, agent) {
+        const num_tries = 3;
+        let i = 0;
+        while (i < num_tries) {
+            const response = await agent.prompter.promptBlueprint(messages);
+            try {
+                const blueprint_data = JSON.parse(response);
+                this.blueprint = new Blueprint(blueprint_data);
+                return blueprint;
+            } catch (error) {
+                console.log('Error parsing blueprint:', error);
+                i++;
+                continue;
+            }
+        }
+        return null;
+    }
 }
 
-export function giveBlueprint(agent, blueprint) {
-    let bot = agent.bot;
-    let name = agent.name;
-    let blueprint_name = blueprint.name;
-    let blueprint_count = blueprint.count;
-    bot.chat(`/clear ${name}`);
-    console.log(`Cleared ${name}'s inventory.`);
-    bot.chat(`/give ${name} ${blueprint_name} ${blueprint_count}`);
-    console.log(`Gave ${name} ${blueprint_count} ${blueprint_name}(s).`);
-}
+

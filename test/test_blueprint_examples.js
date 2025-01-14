@@ -1,116 +1,11 @@
 import { Examples } from '../src/utils/examples.js';
 import { GPT } from '../src/models/gpt.js';
+import { readFileSync } from 'fs';
 
 
-const blueprints = [
-    {
-        "levels": [
-            {   
-                "level": 0,
-                "coordinates": [142, -60, -179], 
-                "placement":
-                [
-                    ["stone", "stone", "oak_door", "stone", "stone"],
-                    ["stone", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone"]
-                ]
-            },
-            {
-                "level": 1,
-                "coordinates": [142, -59, -179],
-                "placement":
-                [
-                    ["stone", "stone", "oak_door", "stone", "stone"],
-                    ["stone", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone"]
-                ]
-            },
-            {
-                "level": 2,
-                "coordinates": [142, -58, -179],
-                "placement":
-                [
-                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
-                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
-                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
-                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
-                ]
-            }
-        ]
-    }, 
-    {
-        "levels": [
-            {
-                "level": 0,
-                "coordinates": [0, 0, 0],
-                "placement": [
-                    ["air", "air", "air", "brick", "brick", "brick", "air", "air", "air"],
-                    ["air", "air", "brick", "brick", "air", "air", "brick", "brick", "air"],
-                    ["air", "brick", "brick", "air", "air", "air", "brick", "brick", "air"],
-                    ["brick", "brick", "air", "air", "air", "air", "air", "brick", "brick"],
-                    ["brick", "air", "air", "air", "air", "air", "air", "air", "brick"],
-                    ["brick", "brick", "air", "air", "air", "air", "air", "brick", "brick"],
-                    ["air", "brick", "brick", "air", "air", "air", "brick", "brick", "air"],
-                    ["air", "air", "brick", "brick", "air", "air", "brick", "brick", "air"],
-                    ["air", "air", "air", "brick", "brick", "brick", "air", "air", "air"]
-                ]
-            }
-        ]
-    }, 
-    {
-        "levels": [
-            {
-                "level": 0,
-                "coordinates": [0, 0, 0],
-                "placement": [
-                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"]
-                ]
-            }, 
-            {
-                "level": 1,
-                "coordinates": [0, 0, 0],
-                "placement": [
-                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"]
-                ]
-            }, 
-            {
-                "level": 2,
-                "coordinates": [0, 0, 0],
-                "placement": [
-                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
-                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"]
-                ]
-            }, 
-        ]
-    }
-]
 
-
+const blueprints = JSON.parse(readFileSync('example_blueprints.json', 'utf8'));
+console.log(blueprints);
 
 const few_shot_examples = [
     [
@@ -133,7 +28,7 @@ let blueprint_examples = new Examples(embedding_model);
 await blueprint_examples.load(few_shot_examples);
 
 const messages = [
-    {"role": "user", "content": "make a house. respond in json"},
+    {"role": "user", "content": "make a house where the walls are made of oak_planks and the ceiling is made of stone. respond in json"},
 ];
 const example_messages = await blueprint_examples.createExampleMessage(messages);
 console.log(example_messages);
@@ -141,9 +36,15 @@ console.log(example_messages);
 let chat = { model: 'gpt-4o', api: 'openai' }
 const chat_model = new GPT(chat.model, chat.url);
 
-const response = await chat_model.sendRequest(messages, example_messages);
-const json_response = JSON.parse(response);
-console.log(json_response);
+const response = await chat_model.sendRequest(messages, example_messages + "Please respond in json. Don't use ``` to format your response.");
+// console.log(response);
+try {
+    const json_response = JSON.parse(response);
+    console.log(JSON.stringify(json_response));
+} catch (err) {
+    console.log("parse failed for json response");
+    console.log(response);
+}
 
 
 

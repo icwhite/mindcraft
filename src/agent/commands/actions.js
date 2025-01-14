@@ -410,17 +410,15 @@ export const actionsList = [
         }
     }, 
     {
-        name: '!checkLevelComplete',
-        description: 'Check if the level is complete and what blocks still need to be placed for the blueprint',
+        name: '!generateBlueprint',
+        description: 'Generate a blueprint for a new building',
         params: {
-            'levelNum': { type: 'int', description: 'The level number to check.', domain: [0, Number.MAX_SAFE_INTEGER] }
+            'prompt': { type: 'string', description: 'A natural language prompt to guide the blueprint generation.' }
         },
-        perform: runAsAction(async (agent, levelNum) => {
-            const result = await checkLevelBlueprint(agent, levelNum);
-            console.log(result);
-            return result;
+        perform: runAsAction(async (agent, prompt) => {
+            return await agent.task.gneerateBlueprint(prompt);
         })
-    }, 
+    }
     // { // commented for now, causes confusion with goal command
     //     name: '!npcGoal',
     //     description: 'Set a simple goal for an item or building to automatically work towards. Do not use for complex goals.',

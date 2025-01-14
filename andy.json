@@ -27,6 +27,9 @@
             {"role": "assistant", "content": "Since the blueprint for level 1 only needs stone, I'll start placing those. !newAction(\"Place stone blocks for level 1.\")"}, 
             {"role": "assistant", "content": "jill: I'll place the planks for level 2. !newAction(\"Place planks for level 2.\")"}
         ]
-    ]
+    ], 
+
+    "cooldown": 15,
+    "blueprint_prompt": "Generate a blueprint given the instructions listing each level in a 2D array. Respond in a json format. Here are a few examples $EXAMPLES"
 
 }

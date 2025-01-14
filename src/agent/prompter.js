@@ -4,6 +4,7 @@ import { getCommandDocs } from './commands/index.js';
 import { getSkillDocs } from './library/index.js';
 import { stringifyTurns } from '../utils/text.js';
 import { getCommand } from './commands/index.js';
+import { example_blueprints } from '../example_blueprints.js';
 
 import { Gemini } from '../models/gemini.js';
 import { GPT } from '../models/gpt.js';
@@ -151,7 +152,7 @@ export class Prompter {
             await Promise.all([
                 this.convo_examples.load(this.profile.conversation_examples),
                 this.coding_examples.load(this.profile.coding_examples), 
-                this.blueprint_examples.load(this.profile.blueprint_examples) 
+                this.blueprint_examples.load(example_blueprints) 
             ]);
 
             console.log('Examples initialized.');
@@ -253,7 +254,7 @@ export class Prompter {
     async promptBlueprint(messages) {
         await this.checkCooldown();
         let prompt = this.profile.blueprint_prompt; //make sure to include an $EXAMPLES placeholder in the prompt
-        prompt = await this.replaceStrings(prompt, messages, blueprint_examples);
+        prompt = await this.replaceStrings(prompt, messages, this.blueprint_examples);
         const response = await this.chat_model.sendRequest(messages, prompt);
         return JSON.parse(response);
     }

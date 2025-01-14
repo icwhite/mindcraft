@@ -1,0 +1,107 @@
+{ 
+    "0": {
+        "levels": [
+            {   
+                "level": 0,
+                "coordinates": [142, -60, -179], 
+                "placement":
+                [
+                    ["stone", "stone", "oak_door", "stone", "stone"],
+                    ["stone", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone"]
+                ]
+            },
+            {
+                "level": 1,
+                "coordinates": [142, -59, -179],
+                "placement":
+                [
+                    ["stone", "stone", "oak_door", "stone", "stone"],
+                    ["stone", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone"]
+                ]
+            },
+            {
+                "level": 2,
+                "coordinates": [142, -58, -179],
+                "placement":
+                [
+                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"],
+                    ["oak_planks", "oak_planks", "oak_planks", "oak_planks", "oak_planks"]
+                ]
+            }
+        ]
+    }, 
+    "1": {
+        "levels": [
+            {
+                "level": 0,
+                "coordinates": [0, 0, 0],
+                "placement": [
+                    ["air", "air", "air", "brick", "brick", "brick", "air", "air", "air"],
+                    ["air", "air", "brick", "brick", "air", "air", "brick", "brick", "air"],
+                    ["air", "brick", "brick", "air", "air", "air", "brick", "brick", "air"],
+                    ["brick", "brick", "air", "air", "air", "air", "air", "brick", "brick"],
+                    ["brick", "air", "air", "air", "air", "air", "air", "air", "brick"],
+                    ["brick", "brick", "air", "air", "air", "air", "air", "brick", "brick"],
+                    ["air", "brick", "brick", "air", "air", "air", "brick", "brick", "air"],
+                    ["air", "air", "brick", "brick", "air", "air", "brick", "brick", "air"],
+                    ["air", "air", "air", "brick", "brick", "brick", "air", "air", "air"]
+                ]
+            }
+        ]
+    }, 
+    "2": {
+        "levels": [
+            {
+                "level": 0,
+                "coordinates": [0, 0, 0],
+                "placement": [
+                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"]
+                ]
+            }, 
+            {
+                "level": 1,
+                "coordinates": [0, 0, 0],
+                "placement": [
+                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "air", "air", "air", "air", "air", "air", "air", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"]
+                ]
+            }, 
+            {
+                "level": 2,
+                "coordinates": [0, 0, 0],
+                "placement": [
+                    ["stone", "stone", "stone", "stone", "oak_door", "stone", "stone", "stone", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                     ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"],
+                    ["stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone", "stone"]
+                ]
+            }
+        ]
+    }
+}
