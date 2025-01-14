@@ -12,6 +12,7 @@ export class Examples {
     turnsToText(turns) {
         let messages = '';
         for (let turn of turns) {
+            console.log('turn:', turn);
             if (turn.role !== 'assistant')
                 messages += turn.content.substring(turn.content.indexOf(':')+1).trim() + '\n';
         }
@@ -60,7 +61,7 @@ export class Examples {
                 cosineSimilarity(embedding, this.embeddings[this.turnsToText(a)])
             );
         }
-        else {
+        else { 
             this.examples.sort((a, b) => 
                 this.wordOverlapScore(turn_text, this.turnsToText(b)) -
                 this.wordOverlapScore(turn_text, this.turnsToText(a))

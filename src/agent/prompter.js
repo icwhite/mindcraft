@@ -145,11 +145,13 @@ export class Prompter {
         try {
             this.convo_examples = new Examples(this.embedding_model);
             this.coding_examples = new Examples(this.embedding_model);
+            this.blueprint_examples = new Examples(this.embedding_model);
             
             // Wait for both examples to load before proceeding
             await Promise.all([
                 this.convo_examples.load(this.profile.conversation_examples),
-                this.coding_examples.load(this.profile.coding_examples)
+                this.coding_examples.load(this.profile.coding_examples), 
+                this.blueprint_examples.load(this.profile.blueprint_examples) 
             ]);
 
             console.log('Examples initialized.');
@@ -246,6 +248,14 @@ export class Prompter {
             return generation;
         }
         return '';
+    }
+
+    async promptBlueprint(messages) {
+        await this.checkCooldown();
+        let prompt = this.profile.blueprint_prompt; //make sure to include an $EXAMPLES placeholder in the prompt
+        prompt = await this.replaceStrings(prompt, messages, blueprint_examples);
+        const response = await this.chat_model.sendRequest(messages, prompt);
+        return JSON.parse(response);
     }
 
     async promptCoding(messages) {

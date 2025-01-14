@@ -56,16 +56,6 @@
         "goal": "Make a house with the blueprint below",
         "agent_count": 1,
         "blueprint": {
-            "materials": {
-                "plank": {
-                    "id": "oak_planks",
-                    "number": 40
-                },
-                "door": {
-                    "id": "oak_door",
-                    "number": 1
-                }
-            },
             "levels": [
                 {   
                     "level": 0,
