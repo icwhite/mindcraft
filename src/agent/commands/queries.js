@@ -208,5 +208,44 @@ export const queryList = [
             console.log(res);
             return pad(res);
         }
+    },
+    {
+        name: "!getCraftingPlan",
+        description: "Get a detailed crafting plan for an item along wth knowing what ingredients you are missing for crafting an item along with the exact quantity of each ingredients, based on the bot's current inventory.",
+        params: {
+            targetItem: {
+                type: 'string',
+                description: 'The item that we are trying to craft'
+            },
+            quantity: {
+                type: 'int',
+                description: 'The quantity of the item that we are trying to craft',
+                optional: true,
+                domain: [1, Infinity, '[)'], // Quantity must be at least 1,
+                default: 1
+            }
+        },
+        perform: function (agent, targetItem, quantity = 1) {
+            let bot = agent.bot;
+
+            // Fetch the bot's inventory
+            const curr_inventory = world.getInventoryCounts(bot);
+            const target_item = targetItem;
+            let existingCount = curr_inventory[target_item] || 0;
+            var prefixMessage = '';
+            if (existingCount > 0) {
+                curr_inventory[target_item] -= existingCount;
+                prefixMessage = `You already have ${existingCount} ${target_item} in your inventory. If you need to craft more,\n`;
+            }
+
+            // Generate crafting plan
+            const craftingPlan = mc.getDetailedCraftingPlan(curr_inventory, target_item, quantity);
+            craftingPlan.response = prefixMessage + craftingPlan.response;
+
+            console.log('I am called \n\n\n\n');
+            console.log(craftingPlan.response);
+
+            return pad(craftingPlan.response);
+        }
     }
 ];

@@ -12,11 +12,18 @@ import convoManager from './conversation.js';
 import { handleTranslation, handleEnglishTranslation } from '../utils/translator.js';
 import { addViewer } from './viewer.js';
 import settings from '../../settings.js';
+import { serverProxy } from './server_proxy.js';
+import { loadTask } from '../utils/tasks.js';
+import { TechTreeHarvestValidator } from '../../tasks/validation_functions/task_validator.js';
+import {getPosition} from './library/world.js'
+import { Task } from './tasks.js';
+
 import { serverProxy } from './agent_proxy.js';
 import { Task } from './tasks.js';
 
 export class Agent {
     async start(profile_fp, load_mem=false, init_message=null, count_id=0, task_path=null, task_id=null) {
+
         this.last_sender = null;
         this.count_id = count_id;
         try {
@@ -42,7 +49,7 @@ export class Agent {
             this.memory_bank = new MemoryBank();
             console.log('Initializing self prompter...');
             this.self_prompter = new SelfPrompter(this);
-            convoManager.initAgent(this);            
+            convoManager.initAgent(this);
             console.log('Initializing examples...');
             await this.prompter.initExamples();
             console.log('Initializing task...');
@@ -61,11 +68,39 @@ export class Agent {
                 save_data = this.history.load();
             }
 
+            if (task) {
+                this.task = loadTask(task);
+                this.taskTimeout = this.task.timeout || 300;
+                this.taskStartTime = Date.now();
+                if (this.task.type === 'harvest' || this.task.type === 'techtree') {
+                    this.validator = new TechTreeHarvestValidator(this.task, this.bot);
+                }
+                this.validator = new TechTreeHarvestValidator(this.task, this.bot);
+
+            } else {
+                this.task = null;
+                this.taskTimeout = null;
+                this.validator = null;
+            }
+
+            // handle blocked actions
+            if (this.task && "blocked_actions" in this.task) {
+                if ("agent_number" in this.task && this.task.agent_number > 1) {
+                    this.blocked_actions = this.task.blocked_actions[this.name];
+                    console.log(`Blocked actions for ${this.name}:`, this.blocked_actions);
+                } else {
+                    this.blocked_actions = this.task.blocked_actions;
+                    console.log(`Blocked actions:`, this.blocked_actions);
+                }
+            }
+
+            console.log("Is validated:", this.validator && this.validator.validate());
+
             this.bot.on('login', () => {
                 console.log(this.name, 'logged in!');
 
                 serverProxy.login();
-                
+
                 // Set skin for profile, requires Fabric Tailor. (https://modrinth.com/mod/fabrictailor)
                 if (this.prompter.profile.skin)
                     this.bot.chat(`/skin set URL ${this.prompter.profile.skin.model} ${this.prompter.profile.skin.path}`);
@@ -76,6 +111,7 @@ export class Agent {
             const spawnTimeout = setTimeout(() => {
                 process.exit(0);
             }, 30000);
+
             this.bot.once('spawn', async () => {
                 try {
                     clearTimeout(spawnTimeout);
@@ -87,10 +123,107 @@ export class Agent {
                     console.log(`${this.name} spawned.`);
                     this.clearBotLogs();
 
+                    if (this.task) {
+                        this.bot.chat(`/clear ${this.name}`);
+                        console.log(`Cleared ${this.name}'s inventory.`);
+                    }
+
+                    //wait for a bit so inventory is cleared
+                    await new Promise((resolve) => setTimeout(resolve, 500));
+
+                    console.log(this.task && "agent_number" in this.task && this.task.agent_number > 1);
+                    if (this.task && "agent_number" in this.task && this.task.agent_number > 1) {
+                        var initial_inventory = this.task.initial_inventory[this.name];
+                        console.log("Initial inventory:", initial_inventory);
+                    } else if (task) {
+                        console.log("Initial inventory:", this.task.initial_inventory);
+                        var initial_inventory = this.task.initial_inventory;
+                    }
+
+                    if (this.task && "initial_inventory" in this.task) {
+                        console.log("Setting inventory...");
+                        console.log("Inventory to set:", initial_inventory);
+                        for (let key of Object.keys(initial_inventory)) {
+                            console.log('Giving item:', key);
+                            this.bot.chat(`/give ${this.name} ${key} ${initial_inventory[key]}`);
+                        };
+                        //wait for a bit so inventory is set
+                        await new Promise((resolve) => setTimeout(resolve, 500));
+                        console.log("Done giving inventory items.");
+                    }
+                    // Function to generate random numbers
+
+                    function getRandomOffset(range) {
+                        return Math.floor(Math.random() * (range * 2 + 1)) - range;
+                    }
+
+                    let human_player_name = null;
+
+                    // Finding if there is a human player on the server
+                    for (const playerName in this.bot.players) {
+                        const player = this.bot.players[playerName];
+                        if (!isOtherAgent(player.username)) {
+                            console.log('Found human player:', player.username);
+                            human_player_name = player.username
+                            break;
+                        }
+                        }
+
+                    // If there are multiple human players, teleport to the first one
+
+                    // teleport near a human player if found by default
+
+                    if (this.task && "agent_number" in this.task) {
+                        var agent_names = this.task.agent_names;
+                        if (human_player_name) {
+                            console.log(`Teleporting ${this.name} to human ${human_player_name}`)
+                            this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
+
+                        }
+                        else {
+                            this.bot.chat(`/tp ${this.name} ${agent_names[0]}`) // teleport on top of the first agent
+                        }
+
+                        await new Promise((resolve) => setTimeout(resolve, 200));
+                    }
+
+                    else if (this.task) {
+                        if (human_player_name) {
+                            console.log(`Teleporting ${this.name} to human ${human_player_name}`)
+                            this.bot.chat(`/tp ${this.name} ${human_player_name}`) // teleport on top of the human player
+
+                        }
+                        await new Promise((resolve) => setTimeout(resolve, 200));
+                    }
+
+                    // now all bots are teleport on top of each other (which kinda looks ugly)
+                    // Thus, we need to teleport them to random distances to make it look better
+
+                    /*
+                    Note : We don't want randomness for construction task as the reference point matters a lot.
+                    Another reason for no randomness for construction task is because, often times the user would fly in the air,
+                    then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
+                    This was done by MaxRobinson in one of the youtube videos.
+                    */
+
+                    if (this.task && this.task.type !== 'construction') {
+                        const pos = getPosition(this.bot);
+                        const xOffset = getRandomOffset(5);
+                        const zOffset = getRandomOffset(5);
+                        this.bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
+                        await new Promise((resolve) => setTimeout(resolve, 200));
+                    }
+
+
+
                     this._setupEventHandlers(save_data, init_message);
                     this.startEvents();
 
                     this.task.initBotTask();
+
+
+                    await new Promise((resolve) => setTimeout(resolve, 10000));
+                    this.checkAllPlayersPresent();
 
                 } catch (error) {
                     console.error('Error in spawn event:', error);
@@ -175,6 +308,18 @@ export class Agent {
         }
     }
 
+    checkAllPlayersPresent() {
+        if (!this.task || !this.task.agent_names) {
+          return;
+        }
+
+        const missingPlayers = this.task.agent_names.filter(name => !this.bot.players[name]);
+        if (missingPlayers.length > 0) {
+            console.log(`Missing players/bots: ${missingPlayers.join(', ')}`);
+            this.cleanKill('Not all required players/bots are present in the world. Exiting.', 4);
+          }
+        }
+
     requestInterrupt() {
         this.bot.interrupt_code = true;
         this.bot.collectBlock.cancelTask();
@@ -196,6 +341,9 @@ export class Agent {
     }
 
     async handleMessage(source, message, max_responses=null) {
+        if (this.task && this.validator && this.validator.validate()) {
+            this.killBots();
+        }
         if (!source || !message) {
             console.warn('Received empty message from', source);
             return false;
@@ -230,6 +378,13 @@ export class Agent {
                     this.routeResponse(source, execute_res);
                 return true;
             }
+        } else {
+            console.log('Self-prompting:', message);
+            // if self_prompt contains something that indicates the goal is complete, stop self-prompting
+            if (message.includes('goal complete')) {
+                this.self_prompter.stop();
+                process.exit(0);
+            }
         }
 
         if (from_other_bot)
@@ -240,7 +395,7 @@ export class Agent {
         console.log('received message from', source, ':', message);
 
         const checkInterrupt = () => this.self_prompter.shouldInterrupt(self_prompt) || this.shut_up || convoManager.responseScheduledFor(source);
-        
+
         let behavior_log = this.bot.modes.flushBehaviorLog();
         if (behavior_log.trim().length > 0) {
             const MAX_LOG = 500;
@@ -258,13 +413,15 @@ export class Agent {
         if (!self_prompt && this.self_prompter.on) // message is from user during self-prompting
             max_responses = 1; // force only respond to this message, then let self-prompting take over
         for (let i=0; i<max_responses; i++) {
+
+
             if (checkInterrupt()) break;
             let history = this.history.getHistory();
             let res = await this.prompter.promptConvo(history);
 
             console.log(`${this.name} full response to ${source}: ""${res}""`);
-            
-            if (res.trim().length === 0) { 
+
+            if (res.trim().length === 0) {
                 console.warn('no response')
                 break; // empty response ends loop
             }
@@ -359,8 +516,14 @@ export class Agent {
         }
     }
 
-    startEvents() {
+    async startEvents() {
         // Custom events
+        // this.bot.on('spawn', () => {
+
+        //     //check that inventory has been set
+        // });
+
+
         this.bot.on('time', () => {
             if (this.bot.time.timeOfDay == 0)
             this.bot.emit('sunrise');
@@ -412,6 +575,9 @@ export class Agent {
             }
         });
         this.bot.on('idle', () => {
+            if (this.task && this.validator && this.validator.validate()) {
+                this.killBots();
+            }
             this.bot.clearControlStates();
             this.bot.pathfinder.stop(); // clear any lingering pathfinder
             this.bot.modes.unPauseAll();
@@ -450,8 +616,44 @@ export class Agent {
         }
     }
 
+    async killBots() {
+        this.bot.chat('Task completed!');
+        this.bot.chat(`/clear @p`);
+
+        // Kick other bots
+        if (!this.task || !this.task.agent_number) {
+            await this.cleanKill('Task completed', 2);
+            return;
+        }
+        const agent_names = this.task.agent_names;
+        console.log('All agent names:', agent_names);
+        console.log('My name:', this.name);
+        const botNames = agent_names.filter(botName => botName !== this.name);
+        console.log('Kicking bots:', botNames);
+        botNames.forEach(botName => {
+            this.bot.chat(`/kick ${botName}`);
+            console.log(`/kick ${botName}`);
+
+        });
+
+        await this.cleanKill('Task completed, exiting', 2);
+    }
+
     async update(delta) {
         await this.bot.modes.update();
+        await this.self_prompter.update(delta);
+
+        try {
+            if (this.task && this.taskTimeout) {
+                const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
+                if (elapsedTime >= this.taskTimeout) {
+                  console.log('Task timeout reached. Task unsuccessful.');
+                  await this.cleanKill('Task unsuccessful: Timeout reached', 3);
+                }
+            }
+            } catch (e) {
+                console.error("Caught an error while checking timeout reached",e);
+            }
         this.self_prompter.update(delta);
     }
 
@@ -459,8 +661,17 @@ export class Agent {
         return !this.actions.executing && !this.coder.generating;
     }
     
+    cleanKill(msg='Killing agent process...',
+            code=1) {
     cleanKill(msg='Killing agent process...', code=1) {
         this.history.add('system', msg);
+
+        if (code === 2 || code === 3 || code === 4) {
+            this.bot.chat('Exiting the world permanently.');
+        }
+        else {
+            this.bot.chat('Restarting.')
+        }
         this.bot.chat(code > 1 ? 'Restarting.': 'Exiting.');
         this.history.save();
         process.exit(code);
