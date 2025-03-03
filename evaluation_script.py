@@ -141,6 +141,91 @@ def launch_parallel_experiments(task_path,
                                  bucket_name=bucket_name)
         time.sleep(5)
 
+# def launch_server_experiment(task_path, 
+#                              task_ids, 
+#                              num_exp, 
+#                              server, 
+#                              experiments_folder,
+#                              exp_name="exp", 
+#                              num_agents=2, 
+#                              model="gpt-4o", 
+#                              s3=False, 
+#                              bucket_name="mindcraft-experiments"):
+#     """
+#     Launch a Minecraft server and run experiments on it.
+#     @param task_path: Path to the task file
+#     @param task_ids: IDs of the tasks to run
+#     @param num_exp: Number of experiments to run
+#     @param server: Tuple containing server path and port
+#     @param experiments_folder: Folder to store experiment results
+#     @param exp_name: Name of the experiment for wandb dataset
+#     @param num_agents: Number of agents to run
+#     @param model: Model to use for the agents
+#     """
+#     server_path, server_port = server
+#     edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
+#     mindserver_port = server_port - 55916 + 8080
+    
+#     # set up server and agents 
+#     session_name = str(server_port - 55916)
+#     if num_agents == 2:
+#         agent_names = [f"andy_{session_name}", f"jill_{session_name}"]
+#         models = [model] * 2
+#     else:
+#         agent_names = [f"andy_{session_name}", f"jill_{session_name}", f"bob_{session_name}"]
+#         models = [model] * 3
+#     make_profiles(agent_names, models)
+
+#     # edit_file("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
+#     agent_profiles = [f"./{agent}.json" for agent in agent_names]
+#     agent_profiles_str = f"\'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]\'"
+#     print(agent_profiles_str)
+#     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
+
+#     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
+
+#     # set environment variables
+#     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
+#     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
+#     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
+
+#     script_content = ""
+#     for task_id in task_ids:
+#         cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
+#         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
+#         for _ in range(num_exp):
+#             script_content += f"{cmd}\n"
+#             script_content += "sleep 2\n"
+#             for agent in agent_names:
+#                 cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
+#                 script_content += f"echo '{cp_cmd}'\n"
+#                 script_content += f"{cp_cmd}\n"
+#                 script_content += "sleep 1\n"
+#                 if s3:
+#                     script_content += f"echo 'Uploading {experiments_folder}/{task_id}_{agent}_{_}.json to s3'\n"
+#                     s3_cmd = f"aws s3 cp bots/{agent}/memory.json s3://{bucket_name}/{experiments_folder}/{task_id}_{_}/{agent}.json"
+#                     script_content += f"echo '{s3_cmd}'\n"
+#                     script_content += f"{s3_cmd}\n"
+#                     script_content += "sleep 1\n"
+
+#     # Create a temporary shell script file
+#     script_file = f"./tmp/experiment_script_{session_name}.sh"
+
+#     script_dir = os.path.dirname(script_file)
+#     os.makedirs(script_dir, exist_ok=True)
+
+#     # Call the function before writing the script file
+#     with open(script_file, 'w') as f:
+#         f.write(script_content)
+
+#     script_file_run = "bash " + script_file
+
+#     # Execute the shell script using subprocess
+#     subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
+
+
+#     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
+
 def launch_server_experiment(task_path, 
                              task_ids, 
                              num_exp, 
@@ -161,6 +246,8 @@ def launch_server_experiment(task_path,
     @param exp_name: Name of the experiment for wandb dataset
     @param num_agents: Number of agents to run
     @param model: Model to use for the agents
+    @param s3: Boolean flag to enable S3 upload
+    @param bucket_name: Name of the S3 bucket
     """
     server_path, server_port = server
     edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
@@ -176,9 +263,8 @@ def launch_server_experiment(task_path,
         models = [model] * 3
     make_profiles(agent_names, models)
 
-    # edit_file("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
     agent_profiles = [f"./{agent}.json" for agent in agent_names]
-    agent_profiles_str = f"\'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]\'"
+    agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
     print(agent_profiles_str)
     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
 
@@ -191,19 +277,28 @@ def launch_server_experiment(task_path,
 
     script_content = ""
     for task_id in task_ids:
+        # Create a separate folder for each task_id
+        task_folder = os.path.join(experiments_folder, str(task_id))
+        os.makedirs(task_folder, exist_ok=True)
+        assert os.path.exists(task_folder), f"Directory {task_folder} was not created"
+        print(f"Created directory: {task_folder}")
+        
         cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
         for _ in range(num_exp):
             script_content += f"{cmd}\n"
             script_content += "sleep 2\n"
             for agent in agent_names:
-                cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
+                agent_file_path = os.path.join(task_folder, f"{agent}_{_}.json")
+                assert os.path.exists(f"bots/{agent}/memory.json"), f"Source file bots/{agent}/memory.json does not exist"
+                script_content += f"echo 'Saving to {agent_file_path}'\n"
+                cp_cmd = f"cp bots/{agent}/memory.json {agent_file_path}"
                 script_content += f"echo '{cp_cmd}'\n"
                 script_content += f"{cp_cmd}\n"
                 script_content += "sleep 1\n"
                 if s3:
-                    script_content += f"echo 'Uploading {experiments_folder}/{task_id}_{agent}_{_}.json to s3'\n"
-                    s3_cmd = f"aws s3 cp bots/{agent}/memory.json s3://{bucket_name}/{experiments_folder}/{task_id}_{_}/{agent}.json"
+                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{task_id}/{agent}_{_}.json"
+                    script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
@@ -213,18 +308,19 @@ def launch_server_experiment(task_path,
 
     script_dir = os.path.dirname(script_file)
     os.makedirs(script_dir, exist_ok=True)
+    assert os.path.exists(script_dir), f"Script directory {script_dir} was not created"
+    print(f"Created script directory: {script_dir}")
 
     # Call the function before writing the script file
     with open(script_file, 'w') as f:
         f.write(script_content)
+    assert os.path.exists(script_file), f"Script file {script_file} was not created"
 
     script_file_run = "bash " + script_file
 
     # Execute the shell script using subprocess
     subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
 
-
-    # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
 def make_profiles(agent_names, models):
     assert len(agent_names) == len(models)
