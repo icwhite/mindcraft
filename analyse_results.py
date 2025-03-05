@@ -3,6 +3,10 @@ import os
 import json
 import re
 from botocore.exceptions import ClientError
+import json
+import argparse
+from tqdm import tqdm
+import glob
 
 def download_and_analyze_s3_folders(bucket_name, s3_prefix, local_base_dir):
     """
@@ -21,6 +25,24 @@ def download_and_analyze_s3_folders(bucket_name, s3_prefix, local_base_dir):
     total = 0
     successful = 0
 
+    base_successful = 0
+    base_total = 0
+
+    missing_successful = 0
+    missing_total = 0
+
+    full_plan_successful = 0
+    full_plan_total = 0
+
+    partial_plan_successful = 0
+    partial_plan_total = 0
+
+    no_plan_successful = 0
+    no_plan_total = 0
+
+    high_depth_successful = 0
+    high_depth_total = 0
+
     try:
         # List objects with the prefix, delimited by '/' to find sub-prefixes (folders)
         response = s3_client.list_objects_v2(Bucket=bucket_name, Prefix=s3_prefix, Delimiter='/')
@@ -30,11 +52,12 @@ def download_and_analyze_s3_folders(bucket_name, s3_prefix, local_base_dir):
             return downloaded_folders
 
         s3_folder_prefixes = [prefix['Prefix'] for prefix in response['CommonPrefixes']]
+        subfolder = s3_prefix.split('/')[-2]
 
-        for s3_folder_prefix in s3_folder_prefixes:
+        for s3_folder_prefix in tqdm(s3_folder_prefixes):
             total += 1
             folder_name = s3_folder_prefix.split('/')[-2] # Extract folder name
-            local_folder_path = os.path.join(local_base_dir, folder_name)
+            local_folder_path = os.path.join(local_base_dir, subfolder, folder_name)
             os.makedirs(local_folder_path, exist_ok=True)
             downloaded_folders.append(local_folder_path)
 
@@ -46,10 +69,35 @@ def download_and_analyze_s3_folders(bucket_name, s3_prefix, local_base_dir):
                     if s3_key.endswith(('.json')): # Only download json files
                         local_file_path = os.path.join(local_folder_path, os.path.basename(s3_key))
                         try:
-                            print(f"Downloading s3://{bucket_name}/{s3_key} to {local_file_path}")
                             s3_client.download_file(bucket_name, s3_key, local_file_path)
-                            successful += int(extract_result(local_folder_path))
-                            print(f"Successful/total: {successful}/{total}")
+                            success = int(extract_result(local_folder_path))
+                            successful += success
+
+                            if "missing" in local_folder_path:
+                                missing_successful += success
+                                missing_total += 1
+                            if "full_plan" in local_folder_path and "depth_0" in local_folder_path:
+                                base_successful += success
+                                base_total += 1
+                            if "full_plan" in local_folder_path:
+                                full_plan_successful += success
+                                full_plan_total += 1
+                            if "partial_plan" in local_folder_path:
+                                partial_plan_successful += success
+                                partial_plan_total += 1
+                            if "no_plan" in local_folder_path:
+                                no_plan_successful += success
+                                no_plan_total += 1
+                            if "depth_1" in local_folder_path or "depth_2" in local_folder_path:
+                                high_depth_successful += success
+                                high_depth_total += 1
+                            
+                            # print(f"Base: {base_successful}/{base_total}")
+                            # print(f"Missing: {missing_successful}/{missing_total}")
+                            # print(f"Full Plan: {full_plan_successful}/{full_plan_total}")
+                            # print(f"Partial Plan: {partial_plan_successful}/{partial_plan_total}")
+                            # print(f"No Plan: {no_plan_successful}/{no_plan_total}")
+                            # print(f"High Depth: {high_depth_successful}/{high_depth_total}")
                         except Exception as e:
                             print(f"Error downloading {s3_key}: {e}")
             
@@ -64,7 +112,32 @@ def download_and_analyze_s3_folders(bucket_name, s3_prefix, local_base_dir):
         "folders": downloaded_folders, 
         "total": total,
         "successful": successful, 
-        "percent_success": successful / total if total > 0 else 0
+        "percent_success": successful / total if total > 0 else 0,
+        "base": {
+            "total": base_total,
+            "successful": base_successful,
+            "percent_success": base_successful / base_total if base_total > 0 else 0
+        },
+        "missing": {
+            "total": missing_total,
+            "successful": missing_successful,
+            "percent_success": missing_successful / missing_total if missing_total > 0 else 0
+        },
+        "partial_plan": {
+            "total": partial_plan_total,
+            "successful": partial_plan_successful,
+            "percent_success": partial_plan_successful / partial_plan_total if partial_plan_total > 0 else 0
+        },
+        "no_plan": {
+            "total": no_plan_total,
+            "successful": no_plan_successful,
+            "percent_success": no_plan_successful / no_plan_total if no_plan_total > 0 else 0
+        },
+        "high_depth": {
+            "total": high_depth_total,
+            "successful": high_depth_successful,
+            "percent_success": high_depth_successful / high_depth_total if high_depth_total > 0 else 0
+        }
     }
 
 def analyze_json_file(file_path):
@@ -98,42 +171,56 @@ def analyze_json_file(file_path):
 
 def extract_result(folder_path):
     folder_name = os.path.basename(folder_path)
-    andy_outcome = None
-    jill_outcome = None
+    json_files = glob.glob(os.path.join(folder_path, "*.json"))
+    assert len(json_files) == 2, f"Expected 2 json files in {folder_name}, found {len(json_files)}"
 
-    andy_file = os.path.join(folder_path, "andy.json")
-    jill_file = os.path.join(folder_path, "jill.json")
+    if not json_files:
+        print(f"No JSON files found in {folder_name}")
+        return None
+    else: 
+        outcome = False
+        for json_file in json_files:
+            outcome = analyze_json_file(json_file)
+            if outcome:
+                return True
+        return False
 
-    # Attempt to find numbered versions if base name doesn't exist
-    if not os.path.exists(andy_file):
-        for file_name in os.listdir(folder_path):
-            if file_name.startswith("Andy_") and file_name.endswith(".json"):
-                andy_file = os.path.join(folder_path, file_name)
-                break
-        else:
-            andy_file = None # Indicate no andy file found
+    # andy_outcome = None
+    # jill_outcome = None
 
-    if not os.path.exists(jill_file):
-        for file_name in os.listdir(folder_path):
-            if file_name.startswith("Jill_") and file_name.endswith(".json"):
-                jill_file = os.path.join(folder_path, file_name)
-                break
-        else:
-            jill_file = None # Indicate no jill file found
+    # andy_file = os.path.join(folder_path, "andy.json")
+    # jill_file = os.path.join(folder_path, "jill.json")
 
-    if andy_file:
-        andy_outcome = analyze_json_file(andy_file)
-        print(f"Andy: {andy_outcome}")
-    else:
-        print(f"Warning: No andy json file found in {folder_name}")
+    # # Attempt to find numbered versions if base name doesn't exist
+    # if not os.path.exists(andy_file):
+    #     for file_name in os.listdir(folder_path):
+    #         if file_name.startswith("Andy_") and file_name.endswith(".json"):
+    #             andy_file = os.path.join(folder_path, file_name)
+    #             break
+    #     else:
+    #         andy_file = None # Indicate no andy file found
 
-    if jill_file:
-        jill_outcome = analyze_json_file(jill_file)
-        print(f"Jill: {jill_outcome}")
-    else:
-        print(f"Warning: No jill json file found in {folder_name}")
+    # if not os.path.exists(jill_file):
+    #     for file_name in os.listdir(folder_path):
+    #         if file_name.startswith("Jill_") and file_name.endswith(".json"):
+    #             jill_file = os.path.join(folder_path, file_name)
+    #             break
+    #     else:
+    #         jill_file = None # Indicate no jill file found
 
-    return andy_outcome or jill_outcome
+    # if andy_file:
+    #     andy_outcome = analyze_json_file(andy_file)
+    #     # print(f"Andy: {andy_outcome}")
+    # else:
+    #     print(f"Warning: No andy json file found in {folder_name}")
+
+    # if jill_file:
+    #     jill_outcome = analyze_json_file(jill_file)
+    #     # print(f"Jill: {jill_outcome}")
+    # else:
+    #     print(f"Warning: No jill json file found in {folder_name}")
+
+    # return andy_outcome or jill_outcome
     
 
 
@@ -152,8 +239,16 @@ def aggregate_results(local_folders):
     successful = 0
     for folder_path in local_folders:
         folder_name = os.path.basename(folder_path)
+
+        json_files = glob.glob(os.path.join(folder_path, "*.json"))
+        if not json_files:
+            print(f"No JSON files found in {folder_name}")
+            continue
+
         andy_outcome = None
         jill_outcome = None
+
+
 
         andy_file = os.path.join(folder_path, "andy.json")
         jill_file = os.path.join(folder_path, "jill.json")
@@ -202,16 +297,31 @@ def aggregate_results(local_folders):
 
     return aggregated_data
 
-# --- Configuration ---
-AWS_BUCKET_NAME = 'izzy-mindcraft'  # Replace with your bucket name
-S3_FOLDER_PREFIX = 'experiments/4o_craft_better_tasks_03-02_07-15/'  # Replace with the prefix for your group folders, e.g., 'experiments/'
-LOCAL_DOWNLOAD_DIR = 'results/4o_craft_better_tasks_03-02_07-15/'
 
 # --- Main Execution ---
 if __name__ == "__main__":
     # 1. Download folders from AWS
-    print(f"Downloading folders from s3://{AWS_BUCKET_NAME}/{S3_FOLDER_PREFIX} to {LOCAL_DOWNLOAD_DIR}...")
-    results = download_and_analyze_s3_folders(AWS_BUCKET_NAME, S3_FOLDER_PREFIX, LOCAL_DOWNLOAD_DIR)
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--aws_bucket_name', default="izzy-mindcraft" , type=str, help='AWS bucket name')
+    parser.add_argument('--s3_folder_prefix', default="experiments/4o_craft_better_tasks_03-02_07-15/", type=str, help='S3 folder prefix')
+    parser.add_argument('--local_download_dir', default="results", type=str, help='Local download directory')
+    args = parser.parse_args()
+
+    AWS_BUCKET_NAME = args.aws_bucket_name
+    S3_FOLDER_PREFIX = args.s3_folder_prefix
+    LOCAL_DOWNLOAD_DIR = args.local_download_dir
+
+
+    print(f"Downloading folders from s3://{args.aws_bucket_name}/{args.s3_folder_prefix} to {args.local_download_dir}...")
+    results = download_and_analyze_s3_folders(args.aws_bucket_name, args.s3_folder_prefix, args.local_download_dir)
+
+if __name__ == "__main__":
+    # Save results to a file
+    subfolder = S3_FOLDER_PREFIX.split('/')[-2]
+    with open(LOCAL_DOWNLOAD_DIR + subfolder + "results.json", "w") as file:
+        json.dump(results, file)
+
+    print("Results saved to results.json")
     print(results)
     # if not downloaded_local_folders:
     #     print("No folders downloaded. Exiting.")
