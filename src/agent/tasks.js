@@ -2,7 +2,18 @@ import { readFileSync } from 'fs';
 import { executeCommand } from './commands/index.js';
 import { getPosition } from './library/world.js';
 import settings from '../../settings.js';
+import { Vec3 } from 'vec3';
+import { ConstructionTaskValidator, Blueprint } from './task_types/construction_tasks.js';
 import { CookingTaskInitiator } from './task_types/cooking_tasks.js';
+
+//todo: modify validator code to return an object with valid and score -> do more testing hahah
+//todo: figure out how to log these things to the same place as bots/histories
+// export class CraftTaskValidator {
+//     constructor(data, agent) {
+//         this.target = data.target;
+//         this.number_of_target = data.number_of_target;
+//         this.agent = agent;
+
 
 /**
  * Validates the presence of required items in an agent's inventory
@@ -15,6 +26,7 @@ function checkItemPresence(data, agent) {
     function isTargetDictionaryWithQuantities(target) {
         return typeof target === 'object' && 
                !Array.isArray(target) && 
+
                target !== null &&
                Object.values(target).every(value => typeof value === 'number');
     }
@@ -83,7 +95,6 @@ function checkItemPresence(data, agent) {
         for (const [item, requiredCount] of Object.entries(requiredQuantities)) {
             const itemName = item.toLowerCase();
             const currentCount = inventoryCount[itemName] || 0;
-            
             if (currentCount < requiredCount) {
                 allTargetsMet = false;
                 missingItems.push({
@@ -110,6 +121,20 @@ function checkItemPresence(data, agent) {
     }
 }
 
+class CookingCraftingTaskValidator {
+    constructor(data, agent) {
+        this.data = data;
+        this.agent = agent;
+    } 
+    validate() {
+        const result = checkItemPresence(this.data, this.agent);
+        return {
+            "valid": result.success, 
+            "score": result.success ? 1 : 0,
+        };
+    }
+}
+
 export class Task {
     constructor(agent, task_path, task_id) {
         this.agent = agent;
@@ -117,20 +142,29 @@ export class Task {
         this.taskTimeout = 300;
         this.taskStartTime = Date.now();
         this.validator = null;
+        this.reset_function = null;
         this.blocked_actions = [];
         this.task_id = task_id;
         if (task_path && task_id) {
             this.data = this.loadTask(task_path, task_id);
+            this.task_type = this.data.type;
+            if (this.task_type === 'construction' && this.data.blueprint) {
+                this.blueprint = new Blueprint(this.data.blueprint);
+                this.goal = this.data.goal + ' \n' + this.blueprint.explain() + " \n" + "make sure to place the lower levels of the blueprint first";
+                this.conversation = this.data.conversation + ' \n' + this.blueprint.explain();
+            } else {
+                this.goal = this.data.goal;
+                this.conversation = this.data.conversation;
+            }
             this.taskTimeout = this.data.timeout || 300;
             this.taskStartTime = Date.now();
-            this.task_type = this.data.type;
-            
             // Set validator based on task_type
-            if (this.task_type === 'cooking' || this.task_type === 'techtree') {
-                this.validator = () => {
-                    const result = checkItemPresence(this.data, this.agent);
-                    return result.success;
-                };
+
+            if (this.task_type === 'construction') {
+                this.validator = new ConstructionTaskValidator(this.data, this.agent);
+            } else if (this.task_type === 'cooking' || this.task_type === 'techtree') {
+                this.validator = new CookingCraftingTaskValidator(this.data, this.agent);
+
             } else {
                 this.validator = null;
             }
@@ -143,10 +177,10 @@ export class Task {
             this.restrict_to_inventory = !!this.data.restrict_to_inventory;
             if (this.data.goal)
                 this.blocked_actions.push('!endGoal');
-            if (this.data.conversation)
+            if (this.conversation)
                 this.blocked_actions.push('!endConversation');
         }
-        
+
         this.name = this.agent.name;
         this.available_agents = settings.profiles.map((p) => JSON.parse(readFileSync(p, 'utf8')).name);
     }
@@ -180,7 +214,7 @@ export class Task {
         try {
             const tasksFile = readFileSync(task_path, 'utf8');
             const tasks = JSON.parse(tasksFile);
-            const task = tasks[task_id];
+            let task = tasks[task_id];
             if (!task) {
                 throw new Error(`Task ${task_id} not found`);
             }
@@ -196,14 +230,29 @@ export class Task {
     }
 
     isDone() {
-        if (this.validator && this.validator())
-            return {"message": 'Task successful', "code": 2};
+        let res = null;
+        if (this.validator)
+            res = this.validator.validate();
+        if (res && res.valid) {
+            return {"message": 'Task successful', "score": res.score};
+        }
+        let other_names = this.available_agents.filter(n => n !== this.name);
+        const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
+
+        if (elapsedTime >= 30 && this.available_agents.length !== this.data.agent_count) {
+            console.log('No other agents found. Task unsuccessful.');
+            return {"message": 'No other agents found', "score": 0};
+        }
         
         if (this.taskTimeout) {
-            const elapsedTime = (Date.now() - this.taskStartTime) / 1000;
             if (elapsedTime >= this.taskTimeout) {
                 console.log('Task timeout reached. Task unsuccessful.');
-                return {"message": 'Task timeout reached', "code": 4};
+                if (res) {
+                    return {"message": 'Task timeout reached', "score": res.score};
+                } else {
+                    return {"message": 'Task timeout reached', "score": 0};
+                }
+                
             }
         }
         return false;
@@ -224,13 +273,13 @@ export class Task {
         } else {
             this.initiator = null;
         }
-
         await this.teleportBots();
 
         //wait for a bit so bots are teleported
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         if (this.data.initial_inventory) {
+            console.log("\n\n\n\n\n")
             console.log("Setting inventory...");
             let initialInventory = {};
             
@@ -241,7 +290,9 @@ export class Task {
             } else {
                 initialInventory = this.data.initial_inventory;
                 console.log("Initial inventory:", initialInventory);
+                console.log("\n\n\n\n");
             }
+            console.log(this.data.initial_inventory);
 
             // Assign inventory items
             for (let key of Object.keys(initialInventory)) {
@@ -268,16 +319,26 @@ export class Task {
             }
         }
 
+        if (this.data.conversation && this.agent.count_id === 0) {
+            let other_name = this.available_agents.filter(n => n !== this.name)[0];
+            let waitCount = 0;
+            while (other_name === undefined && waitCount < 20) {
+                other_name = this.available_agents.filter(n => n !== this.name)[0];
+                await new Promise((resolve) => setTimeout(resolve, 1000));
+                waitCount++;
+            }
+            if (other_name === undefined) {
+                console.log('No other agents found. Task unsuccessful.');
+                this.agent.killAll();
+            }
+            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
+        }
+
         const agentGoal = this.getAgentGoal();
         console.log(`Agent goal for agent Id ${this.agent.count_id}: ${agentGoal}`);
         if (agentGoal) {
             console.log(`Setting goal for agent ${this.agent.count_id}: ${agentGoal}`);
             await executeCommand(this.agent, `!goal("${agentGoal}")`);
-        }
-    
-        if (this.data.conversation && this.agent.count_id === 0) {
-            let other_name = this.available_agents.filter(n => n !== this.name)[0];
-            await executeCommand(this.agent, `!startConversation("${other_name}", "${this.data.conversation}")`);
         }
     }
     
@@ -289,7 +350,7 @@ export class Task {
 
         let human_player_name = null;
         let bot = this.agent.bot;
-        
+
         // Finding if there is a human player on the server
         for (const playerName in bot.players) {
             const player = bot.players[playerName];
@@ -304,8 +365,18 @@ export class Task {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
-        
         await new Promise((resolve) => setTimeout(resolve, 200));
+
+        // now all bots are teleport on top of each other (which kinda looks ugly)
+        // Thus, we need to teleport them to random distances to make it look better
+
+        /*
+        Note : We don't want randomness for construction task as the reference point matters a lot.
+        Another reason for no randomness for construction task is because, often times the user would fly in the air,
+        then set a random block to dirt and teleport the bot to stand on that block for starting the construction,
+        This was done by MaxRobinson in one of the youtube videos.
+        */
+
 
         if (this.data.type !== 'construction') {
             const pos = getPosition(bot);
@@ -313,6 +384,31 @@ export class Task {
             const zOffset = getRandomOffset(5);
             bot.chat(`/tp ${this.name} ${Math.floor(pos.x + xOffset)} ${pos.y + 3} ${Math.floor(pos.z + zOffset)}`);
             await new Promise((resolve) => setTimeout(resolve, 200));
+        }
+
+        if (this.data.agent_count && this.data.agent_count > 1) {
+            // TODO wait for other bots to join
+            await new Promise((resolve) => setTimeout(resolve, 10000));
+            if (this.available_agents.length < this.data.agent_count) {
+                console.log(`Missing ${this.data.agent_count - this.available_agents.length} bot(s).`);
+                this.agent.killAll();
+            }
+        }
+
+        if (this.data.type === 'construction'){
+            //Ensures construction is cleaned out first. -> relies on cheats which are turned off?
+            if (this.blueprint){
+                const result = this.blueprint.autoDelete();
+                // const result = clearHouse(blueprint)
+                const commands = result.commands;
+                const nearbyPosition = result.nearbyPosition;
+                for (const command of commands) {
+                    bot.chat(command);
+                }
+            }
+            else{
+                console.log('no construction blueprint?')
+            }
         }
     }
 }

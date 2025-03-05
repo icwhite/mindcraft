@@ -108,10 +108,13 @@ def launch_parallel_experiments(task_path,
                                 num_exp, 
                                 exp_name, 
                                 num_agents=2, 
-                                model="gpt-4o", 
+                                model="gpt-4o-mini",
+                                api="openai",
                                 num_parallel=1,
                                 s3=False, 
-                                bucket_name="mindcraft-experiments"):
+                                bucket_name="mindcraft-experiments", 
+                                template_profile="profiles/collab_profile.json", 
+                                world_name="Forest"):
     
     with open(task_path, 'r', encoding='utf-8') as file:
         content = file.read()
@@ -123,7 +126,7 @@ def launch_parallel_experiments(task_path,
     task_ids = list(task_ids)
     task_ids_split = [task_ids[i::num_parallel] for i in range(num_parallel)]
 
-    servers = create_server_files("../server_data/", num_parallel)
+    servers = create_server_files("../server_data/", num_parallel, world_name=world_name)
     date_time = datetime.now().strftime("%m-%d_%H-%M")
     experiments_folder = f"experiments/{exp_name}_{date_time}"
     exp_name = f"{exp_name}_{date_time}"
@@ -138,93 +141,11 @@ def launch_parallel_experiments(task_path,
                                  experiments_folder, 
                                  exp_name, 
                                  s3=s3, 
-                                 bucket_name=bucket_name)
+                                 bucket_name=bucket_name, 
+                                 template_profile=template_profile, 
+                                 model=model, 
+                                 api=api)
         time.sleep(5)
-
-# def launch_server_experiment(task_path, 
-#                              task_ids, 
-#                              num_exp, 
-#                              server, 
-#                              experiments_folder,
-#                              exp_name="exp", 
-#                              num_agents=2, 
-#                              model="gpt-4o", 
-#                              s3=False, 
-#                              bucket_name="mindcraft-experiments"):
-#     """
-#     Launch a Minecraft server and run experiments on it.
-#     @param task_path: Path to the task file
-#     @param task_ids: IDs of the tasks to run
-#     @param num_exp: Number of experiments to run
-#     @param server: Tuple containing server path and port
-#     @param experiments_folder: Folder to store experiment results
-#     @param exp_name: Name of the experiment for wandb dataset
-#     @param num_agents: Number of agents to run
-#     @param model: Model to use for the agents
-#     """
-#     server_path, server_port = server
-#     edit_file(os.path.join(server_path, "server.properties"), {"server-port": server_port})
-#     mindserver_port = server_port - 55916 + 8080
-    
-#     # set up server and agents 
-#     session_name = str(server_port - 55916)
-#     if num_agents == 2:
-#         agent_names = [f"andy_{session_name}", f"jill_{session_name}"]
-#         models = [model] * 2
-#     else:
-#         agent_names = [f"andy_{session_name}", f"jill_{session_name}", f"bob_{session_name}"]
-#         models = [model] * 3
-#     make_profiles(agent_names, models)
-
-#     # edit_file("settings.js", {"profiles": [f"./{agent}.json" for agent in agent_names]})
-#     agent_profiles = [f"./{agent}.json" for agent in agent_names]
-#     agent_profiles_str = f"\'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]\'"
-#     print(agent_profiles_str)
-#     launch_world(server_path, session_name="server_" + session_name, agent_names=agent_names)
-
-#     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True) 
-
-#     # set environment variables
-#     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
-#     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
-#     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
-
-#     script_content = ""
-#     for task_id in task_ids:
-#         cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
-#         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
-#         for _ in range(num_exp):
-#             script_content += f"{cmd}\n"
-#             script_content += "sleep 2\n"
-#             for agent in agent_names:
-#                 cp_cmd = f"cp bots/{agent}/memory.json {experiments_folder}/{task_id}_{agent}_{_}.json"
-#                 script_content += f"echo '{cp_cmd}'\n"
-#                 script_content += f"{cp_cmd}\n"
-#                 script_content += "sleep 1\n"
-#                 if s3:
-#                     script_content += f"echo 'Uploading {experiments_folder}/{task_id}_{agent}_{_}.json to s3'\n"
-#                     s3_cmd = f"aws s3 cp bots/{agent}/memory.json s3://{bucket_name}/{experiments_folder}/{task_id}_{_}/{agent}.json"
-#                     script_content += f"echo '{s3_cmd}'\n"
-#                     script_content += f"{s3_cmd}\n"
-#                     script_content += "sleep 1\n"
-
-#     # Create a temporary shell script file
-#     script_file = f"./tmp/experiment_script_{session_name}.sh"
-
-#     script_dir = os.path.dirname(script_file)
-#     os.makedirs(script_dir, exist_ok=True)
-
-#     # Call the function before writing the script file
-#     with open(script_file, 'w') as f:
-#         f.write(script_content)
-
-#     script_file_run = "bash " + script_file
-
-#     # Execute the shell script using subprocess
-#     subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
-
-
-#     # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
 
 def launch_server_experiment(task_path, 
                              task_ids, 
@@ -233,9 +154,11 @@ def launch_server_experiment(task_path,
                              experiments_folder,
                              exp_name="exp", 
                              num_agents=2, 
-                             model="gpt-4o", 
+                             model="gpt-4o",
+                             api="openai", 
                              s3=False, 
-                             bucket_name="mindcraft-experiments"):
+                             bucket_name="mindcraft-experiments", 
+                             template_profile="profiles/collab_profile.json"):
     """
     Launch a Minecraft server and run experiments on it.
     @param task_path: Path to the task file
@@ -256,12 +179,14 @@ def launch_server_experiment(task_path,
     # set up server and agents 
     session_name = str(server_port - 55916)
     if num_agents == 2:
-        agent_names = [f"andy_{session_name}", f"jill_{session_name}"]
+        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}"]
         models = [model] * 2
+        apis = [api] * 2
     else:
-        agent_names = [f"andy_{session_name}", f"jill_{session_name}", f"bob_{session_name}"]
+        agent_names = [f"Andy_{session_name}", f"Jill_{session_name}", f"Bob_{session_name}"]
         models = [model] * 3
-    make_profiles(agent_names, models)
+        apis = [api] * 3
+    make_profiles(agent_names, models, apis, template_profile=template_profile)
 
     agent_profiles = [f"./{agent}.json" for agent in agent_names]
     agent_profiles_str = f"'[\"{agent_profiles[0]}\", \"{agent_profiles[1]}\"]'"
@@ -274,6 +199,19 @@ def launch_server_experiment(task_path,
     set_environment_variable_tmux_session(session_name, "MINECRAFT_PORT", server_port)
     set_environment_variable_tmux_session(session_name, "MINDSERVER_PORT", mindserver_port)
     set_environment_variable_tmux_session(session_name, "PROFILES", agent_profiles_str)
+    set_environment_variable_tmux_session(session_name, "INSECURE_CODING", "true")
+
+    # you need to add the bots to the world first before you can add them as op
+    cmd = f"node main.js --task_path example_tasks.json --task_id debug_multi_agent_timeout"
+
+    subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
+
+    time.sleep(20)
+
+    # add the bots as op
+    for agent in agent_names:
+        subprocess.run(["tmux", "send-keys", "-t", "server_" + session_name, f"/op {agent}", "C-m"])
+        time.sleep(1)
 
     script_content = ""
     for task_id in task_ids:
@@ -283,7 +221,7 @@ def launch_server_experiment(task_path,
         assert os.path.exists(task_folder), f"Directory {task_folder} was not created"
         print(f"Created directory: {task_folder}")
         
-        cmd = f"node main.js --task_path {task_path} --task_id {task_id}"
+        cmd = f"node main.js --task_path \'{task_path}\' --task_id {task_id}"
         cp_cmd = f"cp {agent_names[0]}.json {server_path}bots/{agent_names[0]}/profile.json"
         for _ in range(num_exp):
             script_content += f"{cmd}\n"
@@ -297,11 +235,13 @@ def launch_server_experiment(task_path,
                 script_content += f"{cp_cmd}\n"
                 script_content += "sleep 1\n"
                 if s3:
-                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{task_id}/{agent}_{_}.json"
+                    s3_cmd = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
+                    s3_upload_experiment = f"aws s3 cp {agent_file_path} s3://{bucket_name}/{exp_name}/{task_id}/{agent}_{_}.json"
                     script_content += f"echo 'Uploading {agent_file_path} to S3'\n"
                     script_content += f"echo '{s3_cmd}'\n"
                     script_content += f"{s3_cmd}\n"
                     script_content += "sleep 1\n"
+        script_content += f"sleep 10\n"
 
     # Create a temporary shell script file
     script_file = f"./tmp/experiment_script_{session_name}.sh"
@@ -322,22 +262,31 @@ def launch_server_experiment(task_path,
     subprocess.run(["tmux", "send-keys", "-t", session_name, script_file_run, "C-m"])
 
 
-def make_profiles(agent_names, models):
+    # subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent_names[0]}", "C-m"])
+
+def make_profiles(agent_names, models, apis, template_profile="profiles/collab_profile.json"):
     assert len(agent_names) == len(models)
 
-    with open("profiles/collab_profile.json", 'r') as f:
+    with open(template_profile, 'r') as f:
         content = f.read()
     
     profile = json.loads(content)
 
     for index in range(len(agent_names)):
         profile["name"] = agent_names[index]
-        profile["model"] = models[index]
+        if apis[index] == "vllm":
+            profile["model"] = {
+                "api": "vllm",
+                "model": models[index], 
+                "url": "http://localhost:8000/v1"
+            }
+        else: 
+            profile["model"] = models[index]
 
         with open(f"{agent_names[index]}.json", 'w') as f:
             json.dump(profile, f, indent=4)
 
-def create_server_files(source_path, num_copies):
+def create_server_files(source_path, num_copies, world_name="Forest"):
     """Create multiple copies of server files for parallel experiments."""
     print("Creating server files...")
     print(num_copies)
@@ -346,7 +295,8 @@ def create_server_files(source_path, num_copies):
         dest_path = f"../server_data_{i}/"
         copy_server_files(source_path, dest_path)
         print(dest_path)
-        edit_file(dest_path + "server.properties", {"server-port": 55916 + i})
+        edit_file(dest_path + "server.properties", {"server-port": 55916 + i, 
+                                                    "level-name": world_name})
         # edit_server_properties_file(dest_path, 55916 + i)
         servers.append((dest_path, 55916 + i))
     return servers
@@ -394,8 +344,9 @@ def launch_world(server_path="../server_data/", agent_names=["andy", "jill"], se
     cmd = f"cd {server_path} && java -jar server.jar"
     subprocess.run(['tmux', 'new-session', '-d', '-s', session_name], check=True)
     subprocess.run(["tmux", "send-keys", "-t", session_name, cmd, "C-m"])
-    for agent in agent_names:
-        subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
+    # for agent in agent_names:
+    #     print(f"\n\n/op {agent}\n\n")
+    #     subprocess.run(["tmux", "send-keys", "-t", session_name, f"/op {agent}", "C-m"]) 
     time.sleep(5)
 
 def kill_world(session_name="server"):
@@ -449,6 +400,10 @@ def main():
     parser.add_argument('--s3', action='store_true', help='Whether to upload to s3')
     parser.add_argument('--bucket_name', default="mindcraft-experiments", help='Name of the s3 bucket')
     parser.add_argument('--add_keys', action='store_true', help='Create the keys.json to match the environment variables')
+    parser.add_argument('--template_profile', default="profiles/collab_profile.json", help='Model to use for the agents')
+    parser.add_argument('--model', default="gpt-4o-mini", help='Model to use for the agents')
+    parser.add_argument('--api', default="openai", help='API to use for the agents')
+    parser.add_argument('--world_name', default="Forest", help='Name of the world')
     # parser.add_argument('--wandb', action='store_true', help='Whether to use wandb')
     # parser.add_argument('--wandb_project', default="minecraft_experiments", help='wandb project name')
 
@@ -474,7 +429,12 @@ def main():
                                     exp_name=args.exp_name, 
                                     num_parallel=args.num_parallel, 
                                     s3=args.s3, 
-                                    bucket_name=args.bucket_name)
+                                    bucket_name=args.bucket_name, 
+                                    template_profile=args.template_profile, 
+                                    model=args.model, 
+                                    api=args.api, 
+                                    world_name=args.world_name)
+        cmd = "aws s3"
     
     # servers = create_server_files("../server_data/", args.num_parallel)
     # date_time = datetime.now().strftime("%Y-%m-%d_%H-%M-%S")

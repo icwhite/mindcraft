@@ -20,6 +20,7 @@ import { Qwen } from "./qwen.js";
 import { Grok } from "./grok.js";
 import { DeepSeek } from './deepseek.js';
 import { OpenRouter } from './openrouter.js';
+import { VLLM } from './vllm.js';
 
 import { promises as fs } from 'fs';
 import path from 'path';
@@ -188,6 +189,8 @@ export class Prompter {
             model = new DeepSeek(profile.model, profile.url, profile.params);
         else if (profile.api === 'openrouter')
             model = new OpenRouter(profile.model.replace('openrouter/', ''), profile.url, profile.params);
+        else if (profile.api === 'vllm')
+            model = new VLLM(profile.model, profile.url, profile.params);
         else
             throw new Error('Unknown API:', profile.api);
         return model;

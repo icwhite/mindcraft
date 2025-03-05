@@ -17,3 +17,5 @@ tmp/
 wandb/
 experiments/
 models/logs/*
+andy_*.json
+jill_*.json
