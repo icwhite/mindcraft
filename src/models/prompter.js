@@ -331,7 +331,7 @@ export class Prompter {
     // }
 
      async promptConvo(messages) {
-            console.log(`[${new Date().toISOString()}] promptConvo called with messages:`, messages);
+            // console.log(`[${new Date().toISOString()}] promptConvo called with messages:`, messages);
     
             this.most_recent_msg_time = Date.now();
             let current_msg_time = this.most_recent_msg_time;
