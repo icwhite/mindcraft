@@ -994,20 +994,20 @@ function matrixToBlueprint(matrix, startCoord) {
 }
 
 
-/**
- * Converts a world location to a blueprint
- * @param coordinate - [x,y,z] that signifies the start of the blueprint
- * @param length - how many spaces you want to register from the start coordinate in the x dimension
- * @param width - how many spaces in the z direction on minecraft
- * @param height - how many spaces from the start coordinate in the y direction in minecraft
- * @param bot
- */
 
 async function getBlockName(bot, coordinate) {
     const blockAtLocation = bot.blockAt(new Vec3(coordinate.x, coordinate.y, coordinate.z));
     return blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : "air";
 }
 
+/**
+ * Converts a world location to a blueprint. takes some time to ensure that the chunks are loaded before conversion.
+ * @param startCoord - [x,y,z] that signifies the start of the blueprint
+ * @param length - how many spaces you want to register from the start coordinate in the x dimension
+ * @param width - how many spaces in the z direction on minecraft
+ * @param height - how many spaces from the start coordinate in the y direction in minecraft
+ * @param bot - the mineflayer agent (ex. andy)
+ */
 async function worldToBlueprint(startCoord, length, width, height, bot) {
     await bot.waitForChunksToLoad();
 
@@ -1050,31 +1050,33 @@ async function worldToBlueprint(startCoord, length, width, height, bot) {
 
 // testing code
 
-let blueprint = proceduralGeneration(20,10,20)
-const b = new Blueprint(blueprint)
-const result = b.autoBuild();
-const commands = result.commands;
-const nearbyPosition = result.nearbyPosition;
+// let blueprint = proceduralGeneration(20,10,20)
+// const b = new Blueprint(blueprint)
+// const result = b.autoBuild();
+// const commands = result.commands;
+// const nearbyPosition = result.nearbyPosition;
+//
+//
+// import {initBot} from "../../utils/mcdata.js";
+// let bot = initBot("andy");
 
 
-import {initBot} from "../../utils/mcdata.js";
-let bot = initBot("andy");
+// example usage of world->blueprint function
 
-
-bot.once('spawn', async () => {
-    console.log("nearby position", nearbyPosition);
-    bot.chat(`/tp @andy ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
-    for (const command of commands) {
-        bot.chat(command);
-    }
-    const startCoord = {
-        x: 148,
-        y: -60,
-        z: -170
-    };
-    // [148,-60,-170]
-
-    const worldOutput = await worldToBlueprint(startCoord, 20,10,20, bot)
-});
+// bot.once('spawn', async () => {
+//     console.log("nearby position", nearbyPosition);
+//     bot.chat(`/tp @andy ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+//     for (const command of commands) {
+//         bot.chat(command);
+//     }
+//     const startCoord = {
+//         x: 148,
+//         y: -60,
+//         z: -170
+//     };
+//     // [148,-60,-170] is default start for procedural generation
+//
+//     const worldOutput = await worldToBlueprint(startCoord, 20,10,20, bot)
+// });
 
 
