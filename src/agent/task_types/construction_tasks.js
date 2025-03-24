@@ -181,7 +181,6 @@ export class Blueprint {
                         continue;
                     }
 
-
                     if (actualBlockName !== blockName) {
                         mismatches.push({
                             level: levelData.level,
