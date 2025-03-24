@@ -1007,6 +1007,7 @@ async function getBlockName(bot, coordinate) {
  * @param width - how many spaces in the z direction on minecraft
  * @param height - how many spaces from the start coordinate in the y direction in minecraft
  * @param bot - the mineflayer agent (ex. andy)
+ * @returns - a Blueprint object of the converted blueprint
  */
 async function worldToBlueprint(startCoord, length, width, height, bot) {
     await bot.waitForChunksToLoad();
