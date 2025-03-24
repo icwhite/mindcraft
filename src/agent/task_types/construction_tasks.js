@@ -181,7 +181,6 @@ export class Blueprint {
                         continue;
                     }
 
-                    // todo: skip if blockname contains _door and the actual does as well
 
                     if (actualBlockName !== blockName) {
                         mismatches.push({
@@ -996,23 +995,87 @@ function matrixToBlueprint(matrix, startCoord) {
 }
 
 
+/**
+ * Converts a world location to a blueprint
+ * @param coordinate - [x,y,z] that signifies the start of the blueprint
+ * @param length - how many spaces you want to register from the start coordinate in the x dimension
+ * @param width - how many spaces in the z direction on minecraft
+ * @param height - how many spaces from the start coordinate in the y direction in minecraft
+ * @param bot
+ */
+
+async function getBlockName(bot, coordinate) {
+    const blockAtLocation = bot.blockAt(new Vec3(coordinate.x, coordinate.y, coordinate.z));
+    return blockAtLocation ? bot.registry.blocks[blockAtLocation.type].name : "air";
+}
+
+async function worldToBlueprint(startCoord, length, width, height, bot) {
+    await bot.waitForChunksToLoad();
+
+    const matrix = Array.from({length: height}, () =>
+        Array.from({length: width}, () =>
+            Array(length).fill(null)
+        )
+    );
+
+    const blockPromises = [];
+
+    for (let z = 0; z < height; z++) {
+        for (let x = 0; x < width; x++) {
+            for (let y = 0; y < length; y++) {
+                const worldCoord = {
+                    x: startCoord.x + x,
+                    y: startCoord.y + z,
+                    z: startCoord.z + y
+                };
+
+                blockPromises.push(
+                    getBlockName(bot, worldCoord).then(blockName => ({
+                        z, x, y, blockName
+                    }))
+                );
+            }
+        }
+    }
+
+    const blockResults = await Promise.all(blockPromises);
+
+    blockResults.forEach(({z, x, y, blockName}) => {
+        matrix[z][x][y] = blockName;
+    });
+
+    printMatrix(matrix);
+
+    return matrixToBlueprint(matrix, [startCoord.x, startCoord.y, startCoord.z]);
+}
 
 // testing code
 
-// let blueprint = proceduralGeneration(10,10,20)
-// const b = new Blueprint(blueprint)
-// const result = b.autoBuild();
-// const commands = result.commands;
-// const nearbyPosition = result.nearbyPosition;
-//
-// import {initBot} from "../../utils/mcdata.js";
-// let bot = initBot("andy");
-//
-//
-// bot.on('spawn', async () => {
-//     console.log("nearby position", nearbyPosition);
-//     bot.chat(`/tp @andy ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
-//     for (const command of commands) {
-//         bot.chat(command);
-//     }
-// });
+let blueprint = proceduralGeneration(20,10,20)
+const b = new Blueprint(blueprint)
+const result = b.autoBuild();
+const commands = result.commands;
+const nearbyPosition = result.nearbyPosition;
+
+
+import {initBot} from "../../utils/mcdata.js";
+let bot = initBot("andy");
+
+
+bot.once('spawn', async () => {
+    console.log("nearby position", nearbyPosition);
+    bot.chat(`/tp @andy ${nearbyPosition.x} ${nearbyPosition.y} ${nearbyPosition.z}`);
+    for (const command of commands) {
+        bot.chat(command);
+    }
+    const startCoord = {
+        x: 148,
+        y: -60,
+        z: -170
+    };
+    // [148,-60,-170]
+
+    const worldOutput = await worldToBlueprint(startCoord, 20,10,20, bot)
+});
+
+
