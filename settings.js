@@ -14,6 +14,7 @@ export default
     "base_profile": "./profiles/defaults/survival.json", // also see creative.json, god_mode.json
     "profiles": ((process.env.PROFILES) && JSON.parse(process.env.PROFILES)) || [
         "./andy.json",
+        "./jill_0.json"
         // "./profiles/gpt.json",
         // "./profiles/claude.json",
         // "./profiles/gemini.json",
@@ -35,9 +36,9 @@ export default
     "show_bot_views": false, // show bot's view in browser at localhost:3000, 3001...
 
 
-    "allow_insecure_coding": process.env.INSECURE_CODING || false, // allows newAction command and model can write/run code on your computer. enable at own risk
-    "blocked_actions" : process.env.BLOCKED_ACTIONS || [] , // commands to disable and remove from docs. Ex: ["!setMode"]
-    "blocked_actions" : process.env.BLOCKED_ACTIONS || ["!checkBlueprint", "!checkBlueprintLevel", "!getBlueprint", "!getBlueprintLevel"] , // commands to disable and remove from docs. Ex: ["!setMode"]
+    "allow_insecure_coding": process.env.INSECURE_CODING || true, // allows newAction command and model can write/run code on your computer. enable at own risk
+    // "blocked_actions" : process.env.BLOCKED_ACTIONS || ["!checkBlueprint", "!checkBlueprintLevel", "!getBlueprint", "!getBlueprintLevel"] , // commands to disable and remove from docs. Ex: ["!setMode"]
+    "blocked_actions": ["!startConversation"],
     "code_timeout_mins": -1, // minutes code is allowed to run. -1 for no timeout
     "relevant_docs_count": 5, // Parameter: -1 = all, 0 = no references, 5 = five references. If exceeding the maximum, all reference documents are returned.
 
