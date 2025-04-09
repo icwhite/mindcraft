@@ -524,11 +524,7 @@ export class Task {
         
         // Teleport human near the cooking world and return
         if (this.data.type === 'cooking') {
-            if (this.agent.count_id === 0) {
-                bot.chat(`/tp ${human_player_name} 25 0 -6`);
-                await new Promise((resolve) => setTimeout(resolve, 200));
-                return;
-            }
+            return;
         }
 
         if (human_player_name) {
