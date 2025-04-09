@@ -497,6 +497,10 @@ export class Task {
             return Math.floor(Math.random() * (range * 2 + 1)) - range;
         }
 
+        if (this.data.type === 'cooking') {
+            this.agent.bot.chat('/tp @a 25 0 -6');
+        }
+
         let human_player_name = null;
         let bot = this.agent.bot;
 

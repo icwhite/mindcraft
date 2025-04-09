@@ -15,103 +15,51 @@ export class CookingTaskInitiator {
 
         if (this.agent.count_id === 0) {
             // Clear and prepare the base area
-            await bot.chat(`/fill ~ ~-1 ~ ~50 ~-3 ~50 grass_block`);
-            await bot.chat(`/fill ~ ~-1 ~ ~-50 ~-3 ~50 grass_block`);
-            await bot.chat(`/fill ~ ~-1 ~ ~-50 ~-3 ~-50 grass_block`);
-            await bot.chat(`/fill ~ ~-1 ~ ~50 ~-3 ~-50 grass_block`);
-            await bot.chat(`/fill ~ ~ ~ ~50 ~10 ~50 air`);
-            await bot.chat(`/fill ~ ~ ~ ~-50 ~10 ~50 air`);
-            await bot.chat(`/fill ~ ~ ~ ~-50 ~10 ~-50 air`);
-            await bot.chat(`/fill ~ ~ ~ ~50 ~10 ~-50 air`);
+            await bot.chat(`/fill 0 -1 0 50 -3 50 grass_block`);
+            await bot.chat(`/fill 0 -1 0 -50 -3 50 grass_block`);
+            await bot.chat(`/fill 0 -1 0 -50 -3 -50 grass_block`);
+            await bot.chat(`/fill 0 -1 0 50 -3 -50 grass_block`);
+            await bot.chat(`/fill 0 0 0 50 10 50 air`);
+            await bot.chat(`/fill 0 0 0 -50 10 50 air`);
+            await bot.chat(`/fill 0 0 0 -50 10 -50 air`);
+            await bot.chat(`/fill 0 0 0 50 10 -50 air`);
 
-            const position = getPosition(bot);
+            const position = {x: 0, y: 0, z: 0};
             const botX = Math.floor(position.x);
             const botZ = Math.floor(position.z);
 
-            // Region management system
-            const isOverlapping = (newXMin, newXMax, newZMin, newZMax, occupiedRegions) => {
-                for (const region of occupiedRegions) {
-                    if (newXMin < region.xMax && newXMax > region.xMin && 
-                        newZMin < region.zMax && newZMax > region.zMin) {
-                        return true;
-                    }
-                }
-                return false;
-            };
-
-            const findValidPosition = (width, depth, occupiedRegions) => {
-                const maxXStart = position.x + 25 - width;  // Constrain to 50x50 area
-                const minXStart = position.x - 25;
-                const maxZStart = position.z + 25 - depth;
-                const minZStart = position.z - 25;
-                
-                let attempts = 0;
-                while (attempts < 1000) {
-                    const xStart = Math.floor(minXStart + Math.random() * (maxXStart - minXStart + 1));
-                    const zStart = Math.floor(minZStart + Math.random() * (maxZStart - minZStart + 1));
-                    const xMin = xStart;
-                    const xMax = xStart + width - 1;
-                    const zMin = zStart;
-                    const zMax = zStart + depth - 1;
-                    
-                    if (!isOverlapping(xMin, xMax, zMin, zMax, occupiedRegions)) {
-                        return { xStart, zStart };
-                    }
-                    attempts++;
-                }
-                throw new Error('Failed to find non-overlapping position after 1000 attempts');
-            };
-
-            // Define all regions with their sizes
-            const regionsToPlace = [
-                { type: 'wheat', width: 6, depth: 6 },
-                { type: 'beetroots', width: 4, depth: 5 },
-                { type: 'mushrooms', width: 4, depth: 5 },
-                { type: 'potatoes', width: 4, depth: 5 },
-                { type: 'carrots', width: 4, depth: 5 },
-                { type: 'sugar_cane', width: 3, depth: 3 },
-                { type: 'sugar_cane', width: 3, depth: 3 },
-                { type: 'pumpkins', width: 10, depth: 1 },
-                { type: 'house', width: 11, depth: 11 }
-            ];
-
-            // Expand the regions of each type to make sure they don't overlap
+            // Define organized crop layout
+            // Start crops in a field area to the north of bot position
+            const cropStartX = botX - 15;
+            const cropStartZ = botZ - 25;
             
-            for (let i = 0; i < regionsToPlace.length; i++) {
-                const region = regionsToPlace[i];
-                const { width, depth } = region;
-                regionsToPlace[i].width = width + 4;
-                regionsToPlace[i].depth = depth + 4;
-            }
-
-
-
+            // Track occupied regions for house placement and chest
             const occupiedRegions = [{
-                xMin : botX - 1,
-                xMax : botX + 1,
-                zMin : botZ - 1,
-                zMax : botZ + 1
+                xMin: botX - 1,
+                xMax: botX + 1,
+                zMin: botZ - 1, 
+                zMax: botZ + 1
             }];
-            const regionPositions = {};
-
-            // Calculate positions for all regions
-            for (const region of regionsToPlace) {
-                const { xStart, zStart } = findValidPosition(region.width, region.depth, occupiedRegions);
-                
-                occupiedRegions.push({
-                    xMin: xStart,
-                    xMax: xStart + region.width - 1,
-                    zMin: zStart,
-                    zMax: zStart + region.depth - 1
-                });
-
-                if (region.type === 'sugar_cane') {
-                    if (!regionPositions.sugar_cane) regionPositions.sugar_cane = [];
-                    regionPositions.sugar_cane.push({ xStart, zStart });
-                } else {
-                    regionPositions[region.type] = { xStart, zStart };
-                }
-            }
+            
+            // Set up crop positions in a garden layout
+            const regionPositions = {
+                wheat: { xStart: cropStartX, zStart: cropStartZ },
+                beetroots: { xStart: cropStartX + 8, zStart: cropStartZ },
+                potatoes: { xStart: cropStartX + 14, zStart: cropStartZ },
+                carrots: { xStart: cropStartX + 20, zStart: cropStartZ },
+                mushrooms: { xStart: cropStartX, zStart: cropStartZ + 8 },
+                pumpkins: { xStart: cropStartX + 6, zStart: cropStartZ + 8 },
+                sugar_cane: [
+                    { xStart: cropStartX + 18, zStart: cropStartZ + 8 },
+                    { xStart: cropStartX + 24, zStart: cropStartZ + 8 }
+                ],
+                house: { xStart: cropStartX + 10, zStart: cropStartZ + 15 }
+            };
+            
+            // Add crop regions to occupied regions
+            occupiedRegions.push(
+                { xMin: cropStartX, xMax: cropStartX + 26, zMin: cropStartZ, zMax: cropStartZ + 30 }
+            );
 
             // Planting functions with dynamic positions
             const plantWheat = async (xStart, zStart) => {
@@ -123,7 +71,6 @@ export class CookingTaskInitiator {
                         await bot.chat(`/setblock ${x} ${position.y} ${z} wheat[age=7]`);
                     }
                 }
-                
             };
 
             const plantBeetroots = async (xStart, zStart) => {
@@ -191,7 +138,7 @@ export class CookingTaskInitiator {
                 }
             };
 
-            // Execute all planting
+            // Execute all planting in the organized layout
             await plantWheat(regionPositions.wheat.xStart, regionPositions.wheat.zStart);
             await new Promise(resolve => setTimeout(resolve, 300));
             await plantBeetroots(regionPositions.beetroots.xStart, regionPositions.beetroots.zStart);
@@ -290,23 +237,10 @@ export class CookingTaskInitiator {
 
             // Add a chest with cooking items near the bot
             const addChestWithItems = async () => {
-                // Find a valid position near the bot (within 10 blocks)
-                const findChestPosition = () => {
-                    const maxAttempts = 100;
-                    for (let attempt = 0; attempt < maxAttempts; attempt++) {
-                        const x = botX + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks X
-                        const z = botZ + Math.floor(Math.random() * 10 - 5); // Within ±5 blocks Z
-                        const y = position.y;
-
-                        // Check if the position is not overlapping with existing structures
-                        if (!isOverlapping(x, x, z, z, occupiedRegions)) {
-                            return { x, y, z };
-                        }
-                    }
-                    throw new Error('Failed to find valid chest position');
-                };
-
-                const { x, y, z } = findChestPosition();
+                // Place chest in a fixed position near bot
+                const x = botX + 3;
+                const z = botZ + 3;
+                const y = position.y;
 
                 // Place the chest
                 await bot.chat(`/setblock ${x} ${y} ${z} chest`);
