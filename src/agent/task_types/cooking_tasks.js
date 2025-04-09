@@ -221,19 +221,21 @@ export class CookingTaskInitiator {
                     }
                 }
 
-                // Interior items
-                await bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 3} crafting_table`);
-                await bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 5} furnace`);
-                // Add fuel to the furnace
-                await bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 5} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
-                await bot.chat(`/setblock ${startX + 4} ${startY + 1} ${startZ + 7} smoker`);
-                // Add fuel to the smoker
-                await bot.chat(`/data merge block ${startX + 4} ${startY + 1} ${startZ + 7} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
                 await bot.chat(`/setblock ${startX + depth - 3} ${startY + 1} ${startZ + 2} bed`);
             };
 
-            await buildHouse(regionPositions.house.xStart, regionPositions.house.zStart);
-            await new Promise(resolve => setTimeout(resolve, 300));
+            // Interior items - placed along x-axis near pumpkins
+            const pumpkinsZ = regionPositions.pumpkins.zStart + 5;  // z-coordinate of pumpkins - 3
+            const startX = regionPositions.pumpkins.xStart;         // x-coordinate to start placing items
+            
+            await bot.chat(`/setblock ${-4} ${0} ${pumpkinsZ} crafting_table`);
+            await bot.chat(`/setblock ${0} ${0} ${pumpkinsZ} furnace`);
+            // Add fuel to the furnace
+            await bot.chat(`/data merge block ${0} ${0} ${pumpkinsZ} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
+            
+            await bot.chat(`/setblock ${4} ${0} ${pumpkinsZ} smoker`);
+            // Add fuel to the smoker
+            await bot.chat(`/data merge block ${4} ${0} ${pumpkinsZ} {Items:[{Slot:1b,id:"minecraft:coal",Count:64b}]}`)
 
             // Add a chest with cooking items near the bot
             const addChestWithItems = async () => {
