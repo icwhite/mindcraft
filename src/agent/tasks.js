@@ -492,17 +492,25 @@ export class Task {
     }
     
     async teleportBots() {
+        let bot = this.agent.bot;
         console.log('\n\nTeleporting bots');
         function getRandomOffset(range) {
             return Math.floor(Math.random() * (range * 2 + 1)) - range;
         }
 
         if (this.data.type === 'cooking') {
-            this.agent.bot.chat('/tp @a 25 0 -6');
+            let world_x = 25;
+            let world_z = -6;
+            let world_y = 0;
+
+            let offset_x = getRandomOffset(5);
+            let offset_z = getRandomOffset(5);
+
+            bot.chat(`/tp ${this.name} ${world_x + offset_x} ${world_y + 3} ${world_z + offset_z}`);
+            await new Promise((resolve) => setTimeout(resolve, 200));
         }
 
         let human_player_name = null;
-        let bot = this.agent.bot;
 
         // Finding if there is a human player on the server
         for (const playerName in bot.players) {
@@ -513,12 +521,22 @@ export class Task {
                 break;
             }
         }
+        
+        // Teleport human near the cooking world and return
+        if (this.data.type === 'cooking') {
+            if (this.agent.count_id === 0) {
+                bot.chat(`/tp ${human_player_name} 25 0 -6`);
+                await new Promise((resolve) => setTimeout(resolve, 200));
+                return;
+            }
+        }
 
         if (human_player_name) {
             console.log(`Teleporting ${this.name} to human ${human_player_name}`)
             bot.chat(`/tp ${this.name} ${human_player_name}`)
         }
         else {
+
             console.log(`Teleporting ${this.name} to ${this.available_agents[0]}`)
             bot.chat(`/tp ${this.name} ${this.available_agents[0]}`);
         }
