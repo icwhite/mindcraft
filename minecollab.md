@@ -12,8 +12,8 @@ Following a popular test of collaboration in humans, we further introduce a ``He
 For example, if the task is to make a baked potato and a cake, one agent is given recipe for baked potato, but is required to bake the cake to complete the task, forcing them to ask their teammate for help in baking the potato.
 Agents are evaluated on whether are successfully able to complete the set requirements to make the recipes.
 The environment and objectives of the tasks are randomized every episode.
-
-You can view the cooking task in action [here](https://www.youtube.com/shorts/FbNJ3cR_RWY).
+<!-- 
+You can view the cooking task in action [here](https://www.youtube.com/shorts/FbNJ3cR_RWY). -->
 
 ### Construction
 
@@ -24,7 +24,7 @@ At the beginning of each episode, agents are initialized with the blueprint, mat
 For example, if the blueprint required a stone base and a wooden roof, one agent would be given access and the ability to manipulate stone, the other to wood.
 Agents are evaluated via an edit distance based metric that judges how close their constructed building is to the blueprint and the metric reported is the average of those edit distance scores.
 
-You can view the construction task in action [here](https://www.youtube.com/shorts/vuBycbn35Rw)
+<!-- You can view the construction task in action [here](https://www.youtube.com/shorts/vuBycbn35Rw) -->
 
 ### Crafting 
 
@@ -36,14 +36,14 @@ To make the crafting tasks more challenging, agents are given longer crafting ob
 %we introduce longer crafting recipes (e.g. crafting a compass), and require the agents to communicate the plan to each other.
 Once again, each of these components can be controlled to procedurally generate tasks.
 
-You can view the crafting task in action [here](https://www.youtube.com/shorts/VMAyxwMKiBc).
+<!-- You can view the crafting task in action [here](https://www.youtube.com/shorts/VMAyxwMKiBc). -->
 
 
 ## Installation 
 
 Please follow the installation docs in the README to install mindcraft. You can create a docker image using the Dockerfile. 
 
-Download the relevant task files and server data files, you can find the link [here](https://drive.google.com/drive/folders/1XygbitBBTsNO6q_doEiZHmdETpnyRmCS). The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. **Unzip the server_data.zip in the base `tasks/` folder**.
+Download the relevant task files and server data files. The tasks files are for specifying the tasks to run and the server data is for allowing the models to launch the task in the correct world automatically. **Unzip the server_data.zip in the base `tasks/` folder**.
 
 Then, set up your conda environment: 
 
@@ -142,7 +142,7 @@ The "initial inventory" specifies what items will be given to the agents when th
 
 To create a new task, you simply need to set the initial inventory and the target item. For construction tasks, you can set a new blueprint. See examples of those in tasks/construction_tasks/
 
-To create a task that relies on neither an inventory check or a blueprint check, you will need to design you own evaluation function. The examples for our existing evaluation functions can be found in src/agent/tasks/cooking_tasks.js CookingTaskValidator. For any further questions please contact me at i2white@ucsd.edu. 
+To create a task that relies on neither an inventory check or a blueprint check, you will need to design you own evaluation function. The examples for our existing evaluation functions can be found in src/agent/tasks/cooking_tasks.js CookingTaskValidator. 
 
 ## Creating New Worlds 
 
