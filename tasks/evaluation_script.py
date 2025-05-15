@@ -109,6 +109,7 @@ def aggregate_results(local_folders):
     total = 0
     successful = 0
     successful_tasks = []
+    scores = []
 
     task_type = local_folders[0].split("/")[-2]
     if "cooking" in task_type:
@@ -129,6 +130,7 @@ def aggregate_results(local_folders):
             if result is not None:
                 total += 1
                 successful += result
+                scores.append(result)
         except Exception as e:
             print(f"Error processing {folder_name}: {e}")
 
@@ -140,6 +142,7 @@ def aggregate_results(local_folders):
     return {
         "total": total,
         "successful": successful,
+        "scores": scores,
     }
 
 def check_folder_results(folder_path):

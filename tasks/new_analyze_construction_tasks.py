@@ -1,5 +1,8 @@
 from evaluation_script import analyze_json_file, extract_result, aggregate_results, check_folder_results
 import argparse
+import glob
+import os
+import numpy as np
 
 def main():
 
@@ -9,9 +12,12 @@ def main():
     args = parser.parse_args()
     log_dir = args.log_dir[0]
     print(log_dir)
-
-    results = check_folder_results(log_dir)
+    subfolders = [f for f in glob.glob(os.path.join(log_dir, "*")) if os.path.isdir(f)]
+    results = aggregate_results(subfolders)
+    scores = results["scores"]
+    std = np.std(scores)
     print(results)
+    print(f"Mean: {np.mean(scores)}, Std: {std}, Error Bar: {std/np.sqrt(len(scores))}")
 
 if __name__ == "__main__":
     main()
