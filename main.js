@@ -7,6 +7,7 @@ import { mainProxy } from './src/process/main_proxy.js';
 import { readFileSync } from 'fs';
 
 function parseArguments() {
+    console.log(process.argv);
     return yargs(hideBin(process.argv))
         .option('profiles', {
             type: 'array',

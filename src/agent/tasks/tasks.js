@@ -246,6 +246,9 @@ export class Task {
         this.blocked_actions = [];
         this.task_id = task_id;
 
+        console.log('Task ID:', task_id);
+        console.log('Task Path:', task_path);
+
         if (task_path && task_id) {
             console.log('Starting task', task_id);
             if (task_id.endsWith('hells_kitchen')) {
